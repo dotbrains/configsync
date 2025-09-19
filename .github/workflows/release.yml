@@ -41,16 +41,16 @@ jobs:
     - name: Build binaries
       run: |
         mkdir -p bin
-        
+
         # Build for macOS Intel
         GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-amd64 ./cmd/configsync
-        
+
         # Build for macOS Apple Silicon
         GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-arm64 ./cmd/configsync
-        
+
         # Create universal binary
         lipo -create -output bin/configsync-darwin-universal bin/configsync-darwin-amd64 bin/configsync-darwin-arm64
-        
+
         # Create checksums
         cd bin
         shasum -a 256 * > checksums.txt
@@ -59,12 +59,12 @@ jobs:
     - name: Create tarball
       run: |
         mkdir -p dist
-        
+
         # Create tarballs for each architecture
         tar -czf dist/configsync-${{ steps.version.outputs.VERSION }}-darwin-amd64.tar.gz -C bin configsync-darwin-amd64
         tar -czf dist/configsync-${{ steps.version.outputs.VERSION }}-darwin-arm64.tar.gz -C bin configsync-darwin-arm64
         tar -czf dist/configsync-${{ steps.version.outputs.VERSION }}-darwin-universal.tar.gz -C bin configsync-darwin-universal
-        
+
         # Copy checksums
         cp bin/checksums.txt dist/
 
@@ -88,14 +88,14 @@ jobs:
         name: ConfigSync ${{ steps.version.outputs.VERSION }}
         body: |
           ## ConfigSync ${{ steps.version.outputs.VERSION }}
-          
+
           ### Installation
-          
-          #### macOS (Homebrew - coming soon)
+
+          #### macOS (Homebrew)
           ```bash
           brew install dotbrains/tap/configsync
           ```
-          
+
           #### macOS (Manual Installation)
           ```bash
           # Download and install universal binary (works on both Intel and Apple Silicon)
@@ -103,31 +103,31 @@ jobs:
           sudo mv configsync-darwin-universal /usr/local/bin/configsync
           chmod +x /usr/local/bin/configsync
           ```
-          
+
           #### Verify Installation
           ```bash
           configsync --version
           configsync --help
           ```
-          
+
           ### Quick Start
           ```bash
           # Initialize ConfigSync
           configsync init
-          
+
           # Add applications
           configsync add git vscode Terminal
-          
+
           # Sync configurations
           configsync sync
-          
+
           # Check status
           configsync status
           ```
-          
+
           ### Changes
           ${{ steps.changelog.outputs.CHANGELOG }}
-          
+
           ### Checksums
           See `checksums.txt` for SHA256 checksums of all binaries.
         files: |
@@ -135,14 +135,17 @@ jobs:
         draft: false
         prerelease: false
 
-  # Optional: Update Homebrew formula (if you plan to create one)
-  # homebrew:
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   if: startsWith(github.ref, 'refs/tags/v')
-  #   steps:
-  #   - name: Update Homebrew formula
-  #     uses: dawidd6/action-homebrew-bump-formula@v3
-  #     with:
-  #       token: ${{ secrets.HOMEBREW_TOKEN }}
-  #       formula: configsync
+  # Update Homebrew formula automatically
+  homebrew:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - name: Update Homebrew formula
+      uses: dawidd6/action-homebrew-bump-formula@v3
+      with:
+        token: ${{ secrets.HOMEBREW_TOKEN }}
+        tap: dotbrains/homebrew-tap
+        formula: configsync
+        tag: ${{ github.ref_name }}
+        revision: ${{ github.sha }}

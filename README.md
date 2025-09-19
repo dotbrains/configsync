@@ -593,7 +593,16 @@ For applications not automatically detected, you can:
 
 ## Installation
 
-### From Release (Recommended)
+### Homebrew (Recommended)
+```bash
+# Add the tap and install
+brew install dotbrains/tap/configsync
+
+# Verify installation
+configsync --version
+```
+
+### From Release
 
 #### Universal Binary (Intel + Apple Silicon)
 ```bash
@@ -624,11 +633,6 @@ git clone https://github.com/dotbrains/configsync.git
 cd configsync
 make build
 sudo cp configsync /usr/local/bin/
-```
-
-### Homebrew (Coming Soon)
-```bash
-brew install dotbrains/tap/configsync
 ```
 
 ## Testing & Quality Assurance
