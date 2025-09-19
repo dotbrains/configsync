@@ -1,0 +1,39 @@
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>ConfigSync</h4>
+                <p>{{ site.description }}</p>
+                <div class="footer-links">
+                    <a href="https://github.com/{{ site.repository }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{{ '/installation/' | relative_url }}">Installation</a></li>
+                    <li><a href="{{ '/getting-started/' | relative_url }}">Getting Started</a></li>
+                    <li><a href="{{ '/cli-reference/' | relative_url }}">CLI Reference</a></li>
+                    <li><a href="{{ '/contributing/' | relative_url }}">Contributing</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="https://github.com/{{ site.repository }}/issues" target="_blank">Report Issues</a></li>
+                    <li><a href="https://github.com/{{ site.repository }}/discussions" target="_blank">Discussions</a></li>
+                    <li><a href="https://github.com/{{ site.repository }}/releases" target="_blank">Releases</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; {{ 'now' | date: "%Y" }} DotBrains. Licensed under the MIT License.</p>
+            <p>Built with <i class="fas fa-heart"></i> using Jekyll and GitHub Pages</p>
+        </div>
+    </div>
+</footer>

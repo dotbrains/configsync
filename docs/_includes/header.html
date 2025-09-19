@@ -1,0 +1,35 @@
+<header class="site-header">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="{{ '/' | relative_url }}" class="brand-link">
+                    <i class="fas fa-sync-alt brand-icon"></i>
+                    <span class="brand-text">ConfigSync</span>
+                </a>
+            </div>
+
+            <div class="nav-menu" id="nav-menu">
+                {% for item in site.navigation %}
+                <a href="{{ item.url | relative_url }}"
+                   class="nav-link {% if page.url == item.url %}active{% endif %}">
+                    {{ item.title }}
+                </a>
+                {% endfor %}
+
+                <a href="https://github.com/{{ site.repository }}"
+                   class="nav-link github-link"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <i class="fab fa-github"></i>
+                    GitHub
+                </a>
+            </div>
+
+            <div class="nav-toggle" id="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+</header>

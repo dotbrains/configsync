@@ -1,0 +1,87 @@
+# Site settings
+title: ConfigSync
+description: >-
+  A command-line tool for managing macOS application settings and configurations
+  with centralized storage and syncing across multiple Mac systems.
+baseurl: "/configsync" # the subpath of your site
+url: "https://dotbrains.github.io" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Navigation
+navigation:
+  - title: Home
+    url: /
+  - title: Installation
+    url: /installation/
+  - title: Getting Started
+    url: /getting-started/
+  - title: Documentation
+    url: /docs/
+  - title: CLI Reference
+    url: /cli-reference/
+  - title: Contributing
+    url: /contributing/
+
+# Social links
+github_username: dotbrains
+repository: dotbrains/configsync
+
+# SEO settings
+logo: /assets/images/logo.png
+social:
+  name: DotBrains
+  links:
+    - https://github.com/dotbrains
+
+# Syntax highlighting
+kramdown:
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+
+# Sass settings
+sass:
+  style: compressed
+  sass_dir: _sass
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "docs"
