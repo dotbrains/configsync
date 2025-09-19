@@ -16,7 +16,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.22'
+        go-version: '1.23'
 
     - name: Cache Go modules
       uses: actions/cache@v4
@@ -24,15 +24,26 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-1.22-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-1.23-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-go-1.22-
+          ${{ runner.os }}-go-1.23-
 
     - name: Download dependencies
       run: go mod download
 
     - name: Create bin directory
       run: mkdir -p bin
+
+    - name: Debug directory structure
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Directory contents:"
+        ls -la
+        echo "cmd directory contents:"
+        ls -la cmd/ || echo "cmd directory not found"
+        echo "Full directory tree:"
+        find . -name "*.go" | head -10
 
     - name: Build for macOS Intel
       run: GOOS=darwin GOARCH=amd64 go build -o bin/configsync-darwin-amd64 ./cmd/configsync
