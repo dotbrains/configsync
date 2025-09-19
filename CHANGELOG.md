@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2024-09-19
+
+### Fixed
+- **Version Injection**: Fixed build-time version injection to show correct version in `--version` output
+- **Homebrew Automation**: Resolved workflow issues with automated formula updates
+- **Build Process**: Updated ldflags to use correct package path for version variable
+
+### Changed
+- Updated build scripts and workflows to properly inject version information
+- Improved release automation reliability
+
 ## [1.0.1] - 2024-09-19
 
 ### Added

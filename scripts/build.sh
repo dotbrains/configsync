@@ -14,11 +14,11 @@ mkdir -p ${OUTPUT_DIR}
 
 # Build for macOS (Intel)
 echo "Building for macOS Intel..."
-GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${VERSION}" -o ${OUTPUT_DIR}/configsync-darwin-amd64 ./cmd/configsync
+GOOS=darwin GOARCH=amd64 go build -ldflags "-X github.com/dotbrains/configsync/cmd/configsync/cmd.version=${VERSION}" -o ${OUTPUT_DIR}/configsync-darwin-amd64 ./cmd/configsync
 
 # Build for macOS (Apple Silicon)
 echo "Building for macOS Apple Silicon..."
-GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${VERSION}" -o ${OUTPUT_DIR}/configsync-darwin-arm64 ./cmd/configsync
+GOOS=darwin GOARCH=arm64 go build -ldflags "-X github.com/dotbrains/configsync/cmd/configsync/cmd.version=${VERSION}" -o ${OUTPUT_DIR}/configsync-darwin-arm64 ./cmd/configsync
 
 # Create universal binary
 echo "Creating universal binary..."

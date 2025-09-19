@@ -14,6 +14,7 @@ var (
 	configDir string
 	verbose   bool
 	dryRun    bool
+	version   string = "1.0.0" // Default version, overridden at build time
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -29,7 +30,7 @@ It helps you:
 - Deploy configurations to new Mac systems easily
 - Create backups before making changes
 - Support version control integration`,
-	Version: "1.0.0",
+	Version: version,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

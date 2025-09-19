@@ -43,10 +43,10 @@ jobs:
         mkdir -p bin
 
         # Build for macOS Intel
-        GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-amd64 ./cmd/configsync
+        GOOS=darwin GOARCH=amd64 go build -ldflags "-X github.com/dotbrains/configsync/cmd/configsync/cmd.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-amd64 ./cmd/configsync
 
         # Build for macOS Apple Silicon
-        GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-arm64 ./cmd/configsync
+        GOOS=darwin GOARCH=arm64 go build -ldflags "-X github.com/dotbrains/configsync/cmd/configsync/cmd.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-arm64 ./cmd/configsync
 
         # Create universal binary
         lipo -create -output bin/configsync-darwin-universal bin/configsync-darwin-amd64 bin/configsync-darwin-arm64
