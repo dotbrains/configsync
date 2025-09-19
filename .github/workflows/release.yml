@@ -149,3 +149,21 @@ jobs:
         formula: configsync
         tag: ${{ github.ref_name }}
         revision: ${{ github.sha }}
+        force: true  # Force update even if versions appear the same
+        test_bot: false  # Skip test bot to avoid conflicts
+      continue-on-error: true  # Don't fail the entire release if Homebrew update fails
+
+    - name: Manual Homebrew Instructions
+      if: failure()  # Run if the automated step failed
+      run: |
+        echo "❌ Automated Homebrew update failed."
+        echo "✅ Manual update instructions:"
+        echo "1. Clone the tap: git clone https://github.com/dotbrains/homebrew-tap.git"
+        echo "2. Update the formula in Formula/configsync.rb:"
+        echo "   - Update version to: ${{ github.ref_name }}"
+        echo "   - Update sha256 checksum"
+        echo "   - Update download URL"
+        echo "3. Commit and push the changes"
+        echo ""
+        echo "📋 Release assets are available at:"
+        echo "https://github.com/dotbrains/configsync/releases/tag/${{ github.ref_name }}"

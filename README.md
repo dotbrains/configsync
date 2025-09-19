@@ -670,6 +670,8 @@ ConfigSync maintains high code quality with comprehensive test coverage:
 
 Contributions are welcome! Please see our [contribution guidelines](CONTRIBUTING.md) for details.
 
+For information about the release process, see the [release documentation](RELEASE.md).
+
 ### Development Setup
 
 ```bash
