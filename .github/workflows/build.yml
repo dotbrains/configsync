@@ -31,6 +31,9 @@ jobs:
     - name: Download dependencies
       run: go mod download
 
+    - name: Create bin directory
+      run: mkdir -p bin
+
     - name: Build for macOS Intel
       run: GOOS=darwin GOARCH=amd64 go build -o bin/configsync-darwin-amd64 ./cmd/configsync
 
@@ -39,7 +42,6 @@ jobs:
 
     - name: Create universal binary
       run: |
-        mkdir -p bin
         lipo -create -output bin/configsync-darwin-universal bin/configsync-darwin-amd64 bin/configsync-darwin-arm64
 
     - name: Test binary
