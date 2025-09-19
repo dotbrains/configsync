@@ -34,17 +34,6 @@ jobs:
     - name: Create bin directory
       run: mkdir -p bin
 
-    - name: Debug directory structure
-      run: |
-        echo "Current directory:"
-        pwd
-        echo "Directory contents:"
-        ls -la
-        echo "cmd directory contents:"
-        ls -la cmd/ || echo "cmd directory not found"
-        echo "Full directory tree:"
-        find . -name "*.go" | head -10
-
     - name: Build for macOS Intel
       run: GOOS=darwin GOARCH=amd64 go build -o bin/configsync-darwin-amd64 ./cmd/configsync
 
