@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2024-09-19
+
+### Added
+- **Release Documentation**: Comprehensive release workflow guide (RELEASE.md)
+- **Manual Update Script**: Automated script for manual Homebrew formula updates
+- **Enhanced Automation**: Improved GitHub Actions workflow with better error handling
+- **Fallback Process**: Reliable manual process when automation fails
+
+### Changed
+- **Release Workflow**: Enhanced with `force: true` and `continue-on-error` for better reliability
+- **Documentation**: Added reference to release documentation in README
+- **Error Handling**: Better feedback when Homebrew automation fails
+
+### Fixed
+- **Homebrew Edge Cases**: Improved handling of version conflicts and cache issues
+- **Release Resilience**: Workflow no longer fails completely if Homebrew update fails
+
 ## [1.0.2] - 2024-09-19
 
 ### Fixed
