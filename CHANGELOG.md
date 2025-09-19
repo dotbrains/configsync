@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2024-09-19
+
+### Added
+- **Homebrew Support**: Official Homebrew tap for easy installation
+- **Automated Formula Updates**: Release workflow automatically updates Homebrew formula
+- **Multi-Architecture Homebrew Formula**: Native support for Intel and Apple Silicon Macs
+- **Enhanced Installation Documentation**: Homebrew as primary installation method
+- **Homebrew Setup Guide**: Comprehensive guide for maintaining the tap
+
+### Changed
+- Updated README.md to prioritize Homebrew installation
+- Enhanced release workflow with automated Homebrew formula updates
+- Improved installation instructions across all documentation
+
+### Infrastructure
+- Created `dotbrains/homebrew-tap` repository
+- Added automated formula update workflow
+- Integrated SHA256 checksum validation for Homebrew releases
+
+### Removed
+- Homebrew setup guide (no longer needed after successful setup)
+
 ## [1.0.0] - 2024-09-19
 
 ### Added
