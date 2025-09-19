@@ -110,38 +110,42 @@ title: Home
     </div>
 </section>
 
-<section class="py-4" style="background: var(--bg-secondary);">
+</section>
+
+<div class="py-4" style="background: var(--bg-secondary);">
     <div class="content">
         <h2 class="text-center">Quick Start</h2>
         <p class="text-center section-subtitle">
             Get up and running with ConfigSync in minutes
         </p>
-
-        ```bash
-        # Install ConfigSync
-        brew install dotbrains/tap/configsync
-
-        # Initialize ConfigSync
-        configsync init
-
-        # Auto-discover and add applications
-        configsync discover --auto-add
-
-        # Sync all configurations
-        configsync sync
-
-        # Export for deployment to another Mac
-        configsync export --output my-configs.tar.gz
-        ```
-
-        <div class="text-center mt-4">
-            <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
-                <i class="fas fa-play"></i>
-                View Complete Guide
-            </a>
-        </div>
     </div>
-</section>
+</div>
+
+```bash
+# Install ConfigSync
+brew install dotbrains/tap/configsync
+
+# Initialize ConfigSync
+configsync init
+
+# Auto-discover and add applications
+configsync discover --auto-add
+
+# Sync all configurations
+configsync sync
+
+# Export for deployment to another Mac
+configsync export --output my-configs.tar.gz
+```
+
+<div class="text-center mt-4">
+    <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
+        <i class="fas fa-play"></i>
+        View Complete Guide
+    </a>
+</div>
+
+<section class="content">
 
 <section class="content">
     <div style="max-width: 1200px; margin: 0 auto;">
