@@ -6,6 +6,7 @@ run:
 linters-settings:
   govet:
     enable:
+      - shadow
       - fieldalignment
   gocyclo:
     min-complexity: 15
@@ -57,7 +58,6 @@ linters:
     - nolintlint
     - revive
     - rowserrcheck
-    - shadow
     - staticcheck
     - stylecheck
     - typecheck
