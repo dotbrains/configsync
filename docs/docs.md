@@ -4,11 +4,9 @@ title: Documentation
 permalink: /docs/
 ---
 
-<div class="content">
-    <h1>ConfigSync Documentation</h1>
-    <p class="section-subtitle">
-        Complete documentation for ConfigSync - the macOS configuration management tool
-    </p>
+# ConfigSync Documentation
+
+*Comprehensive guides and references for ConfigSync*
 
     ## Getting Started
 
@@ -201,20 +199,13 @@ permalink: /docs/
     3. **Ask in Discussions** for community support and advice
     4. **Read the source code** for implementation details
 
-    <div class="text-center mt-4">
-        <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
-            <i class="fas fa-play"></i>
-            Get Started Now
-        </a>
-        <a href="https://github.com/dotbrains/configsync" class="btn btn-secondary" target="_blank">
-            <i class="fab fa-github"></i>
-            View on GitHub
-        </a>
-    </div>
+### Ready to Get Started?
 
-    ---
+- **[Get Started Now]({{ '/getting-started/' | relative_url }})** - Follow our step-by-step guide
+- **[View on GitHub](https://github.com/dotbrains/configsync)** - Explore the source code
 
-    **Last Updated**: {{ site.time | date: '%B %d, %Y' }}
+---
 
-    Found an error in the documentation? [Edit this page on GitHub](https://github.com/dotbrains/configsync/edit/main/docs/{{ page.path }}) or [report an issue](https://github.com/dotbrains/configsync/issues/new).
-</div>
+**Last Updated**: {{ site.time | date: '%B %d, %Y' }}
+
+Found an error in the documentation? [Edit this page on GitHub](https://github.com/dotbrains/configsync/edit/main/docs/{{ page.path }}) or [report an issue](https://github.com/dotbrains/configsync/issues/new).

@@ -4,13 +4,11 @@ title: Getting Started
 permalink: /getting-started/
 ---
 
-<div class="content">
-    <h1>Getting Started with ConfigSync</h1>
-    <p class="section-subtitle">
-        A step-by-step guide to start managing your macOS application configurations
-    </p>
+# Getting Started with ConfigSync
 
-    ## Prerequisites
+*A step-by-step guide to start managing your macOS application configurations*
+
+## Prerequisites
 
     Before getting started, make sure you have:
 
@@ -371,22 +369,10 @@ permalink: /getting-started/
     - Use `.gitignore` if version controlling the store
     - Regularly validate backup checksums
 
-    ## Next Steps
+## Next Steps
 
-    Now that you have ConfigSync set up:
+Now that you have ConfigSync set up, here are some helpful resources:
 
-    <div class="text-center mt-4" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <a href="{{ '/cli-reference/' | relative_url }}" class="btn btn-primary">
-            <i class="fas fa-terminal"></i>
-            CLI Reference
-        </a>
-        <a href="{{ '/contributing/' | relative_url }}" class="btn btn-secondary">
-            <i class="fas fa-code-branch"></i>
-            Contributing Guide
-        </a>
-        <a href="https://github.com/{{ site.repository }}/discussions" class="btn btn-secondary" target="_blank">
-            <i class="fas fa-comments"></i>
-            Join Discussions
-        </a>
-    </div>
-</div>
+- **[CLI Reference]({{ '/cli-reference/' | relative_url }})** - Complete command-line documentation
+- **[Contributing Guide]({{ '/contributing/' | relative_url }})** - Help improve ConfigSync
+- **[GitHub Discussions](https://github.com/{{ site.repository }}/discussions)** - Join the community

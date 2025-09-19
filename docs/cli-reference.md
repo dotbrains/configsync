@@ -4,13 +4,11 @@ title: CLI Reference
 permalink: /cli-reference/
 ---
 
-<div class="content">
-    <h1>CLI Reference</h1>
-    <p class="section-subtitle">
-        Complete command-line interface documentation for ConfigSync
-    </p>
+# CLI Reference
 
-    ## Global Options
+*Complete command-line interface documentation for ConfigSync*
+
+## Global Options
 
     These options are available for all ConfigSync commands:
 
@@ -590,14 +588,7 @@ permalink: /cli-reference/
     configsync status --format=json > /tmp/configsync-status.json
     ```
 
-    <div class="text-center mt-4">
-        <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
-            <i class="fas fa-play"></i>
-            Getting Started Guide
-        </a>
-        <a href="https://github.com/{{ site.repository }}/issues" class="btn btn-secondary" target="_blank">
-            <i class="fas fa-bug"></i>
-            Report Issues
-        </a>
-    </div>
-</div>
+## Need Help?
+
+- **[Getting Started Guide]({{ '/getting-started/' | relative_url }})** - Learn the basics of ConfigSync
+- **[Report Issues](https://github.com/{{ site.repository }}/issues)** - Found a bug or need a feature?

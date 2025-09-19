@@ -4,13 +4,11 @@ title: Installation
 permalink: /installation/
 ---
 
-<div class="content">
-    <h1>Installation Guide</h1>
-    <p class="section-subtitle">
-        Choose your preferred installation method to get started with ConfigSync
-    </p>
+# Installation Guide
 
-    ## Homebrew (Recommended)
+*Choose your preferred installation method to get started with ConfigSync*
+
+## Homebrew (Recommended)
 
     The easiest way to install ConfigSync is using Homebrew:
 
@@ -226,18 +224,9 @@ permalink: /installation/
     rm -rf ~/.configsync
     ```
 
-    ## Next Steps
+## Next Steps
 
-    Once ConfigSync is installed, you're ready to start managing your configurations:
+Once ConfigSync is installed, you're ready to start managing your configurations:
 
-    <div class="text-center mt-4">
-        <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
-            <i class="fas fa-play"></i>
-            Getting Started Guide
-        </a>
-        <a href="{{ '/cli-reference/' | relative_url }}" class="btn btn-secondary">
-            <i class="fas fa-terminal"></i>
-            CLI Reference
-        </a>
-    </div>
-</div>
+- **[Getting Started Guide]({{ '/getting-started/' | relative_url }})** - Learn how to set up and use ConfigSync
+- **[CLI Reference]({{ '/cli-reference/' | relative_url }})** - Complete command documentation

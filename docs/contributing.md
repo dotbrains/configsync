@@ -4,11 +4,9 @@ title: Contributing
 permalink: /contributing/
 ---
 
-<div class="content">
-    <h1>Contributing to ConfigSync</h1>
-    <p class="section-subtitle">
-        Thank you for your interest in contributing to ConfigSync! We welcome contributions from everyone.
-    </p>
+# Contributing to ConfigSync
+
+*Help make ConfigSync better for everyone*
 
     ## Code of Conduct
 
@@ -477,20 +475,13 @@ permalink: /contributing/
     - **CHANGELOG.md** for notable contributions
     - **README.md** acknowledgments section
 
-    <div class="text-center mt-4">
-        <a href="https://github.com/dotbrains/configsync" class="btn btn-primary" target="_blank">
-            <i class="fab fa-github"></i>
-            View on GitHub
-        </a>
-        <a href="https://github.com/dotbrains/configsync/issues/new" class="btn btn-secondary" target="_blank">
-            <i class="fas fa-plus"></i>
-            Create Issue
-        </a>
-    </div>
+## Get Started
 
-    ---
+- **[View on GitHub](https://github.com/dotbrains/configsync)** - Explore the codebase and open issues
+- **[Create Issue](https://github.com/dotbrains/configsync/issues/new)** - Report bugs or suggest features
 
-    **Thank you for contributing to ConfigSync!** 🎉
+---
 
-    Your contributions help make configuration management better for the entire macOS community.
-</div>
+**Thank you for contributing to ConfigSync!** 🎉
+
+Your contributions help make configuration management better for the entire macOS community.
