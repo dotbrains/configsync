@@ -1,5 +1,3 @@
-version: 2
-
 run:
   timeout: 5m
   issues-exit-code: 1
@@ -24,26 +22,18 @@ linters-settings:
     line-length: 120
   goimports:
     local-prefixes: github.com/dotbrains/configsync
-  gocritic:
-    enabled-tags:
-      - performance
-      - style
-      - experimental
-    disabled-checks:
-      - wrapperFunc
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
 
 linters:
   enable:
     - bodyclose
-    - copyloopvar
     - dogsled
     - dupl
     - errcheck
     - exhaustive
     - goconst
-    - gocritic
     - gocyclo
+    - gofmt
+    - goimports
     - goprintffuncname
     - govet
     - ineffassign
@@ -65,45 +55,6 @@ linters:
     - mnd  # Magic numbers will be addressed case-by-case
     - noctx  # Context usage will be improved separately
 
-formatters:
-  enable:
-    - gofmt
-    - goimports
-
-  # don't enable:
-  # - asciicheck
-  # - gochecknoglobals
-  # - gocognit
-  # - godot
-  # - godox
-  # - goerr113
-  # - interfacer
-  # - maligned
-  # - nestif
-  # - prealloc
-  # - testpackage
-  # - wsl
-
 issues:
-  exclude-use-default: false
-  exclude:
-    # errcheck: Almost all programs ignore errors on these functions and in most cases it's ok
-    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv). is not checked
-
-    # golint: False positive: https://github.com/golangci/golangci-lint/issues/456
-    - func name will be used as test\.Test.* by other packages, and that stutters; consider calling this
-    - should have a package comment, unless it's in another file for this package
-
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gomnd
-        - gosec
-        - dupl
-
-    # Exclude lll issues for long lines with go:generate
-    - linters: [lll]
-      source: "^//go:generate "
-
   max-issues-per-linter: 50
   max-same-issues: 3
