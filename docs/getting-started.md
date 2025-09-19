@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Getting Started
+permalink: /getting-started/
 ---
 
 <div class="content">
