@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-09-19
+
 ### Added
 - Initial release of ConfigSync
 - CLI commands: `init`, `add`, `sync`, `status`, `remove`
@@ -41,10 +43,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cross-platform build support
 - Linting and code quality checks
 - Comprehensive documentation
-
-## [1.0.0] - 2024-XX-XX
-
-### Added
-- Initial stable release
-- All core features implemented and tested
-- Production-ready CLI tool for macOS configuration management
