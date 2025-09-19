@@ -5,13 +5,12 @@ run:
 
 linters-settings:
   govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0.8
+    enable:
+      - fieldalignment
   gocyclo:
     min-complexity: 15
-  maligned:
-    suggest-new: true
+  revive:
+    min-confidence: 0.8
   dupl:
     threshold: 100
   goconst:
@@ -35,7 +34,6 @@ linters-settings:
 linters:
   enable:
     - bodyclose
-    - deadcode
     - depguard
     - dogsled
     - dupl
@@ -59,15 +57,15 @@ linters:
     - nakedret
     - noctx
     - nolintlint
+    - revive
     - rowserrcheck
+    - shadow
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
     - unparam
     - unused
-    - varcheck
     - whitespace
 
   # don't enable:
