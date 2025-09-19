@@ -51,7 +51,7 @@ github_username: dotbrains
 repository: dotbrains/configsync
 
 # SEO settings
-logo: /assets/images/logo.png
+logo: /assets/images/logo.svg
 social:
   name: DotBrains
   links:

@@ -701,21 +701,32 @@ cd docs
 # Install Jekyll and dependencies
 bundle install
 
-# Start local development server
-bundle exec jekyll serve --incremental
+# Start local development server with proper baseurl configuration
+./dev_server.sh
+# OR run manually:
+bundle exec jekyll serve --incremental --config _config.yml,_config_dev.yml --port 4000
 
-# View site at: http://127.0.0.1:4000/configsync/
+# View site at: http://localhost:4000/ (CSS and assets will load correctly)
 ```
 
 #### Development Workflow
 - **Live Reload**: Changes are automatically rebuilt and visible after browser refresh
 - **Incremental Builds**: Only changed files are rebuilt for faster development
 - **Local Testing**: Test all features including navigation, code highlighting, and responsive design
+- **Dual Configuration**: Uses both `_config.yml` and `_config_dev.yml` for proper local development
+- **Asset Loading**: CSS and JavaScript files load correctly in local development environment
 
 #### Useful Development Commands
 ```bash
-# Serve with custom port
-bundle exec jekyll serve --port 4001
+# Start development server (recommended)
+./dev_server.sh
+
+# Start development server manually with proper config
+bundle exec jekyll serve --incremental --config _config.yml,_config_dev.yml --port 4000
+
+# Start production-style server (for testing GitHub Pages behavior)
+bundle exec jekyll serve --incremental --port 4000
+# Then visit: http://localhost:4000/configsync/
 
 # Build without serving (for testing)
 bundle exec jekyll build
@@ -723,14 +734,18 @@ bundle exec jekyll build
 # Clean build files
 bundle exec jekyll clean
 
-# Serve with drafts (if using _drafts folder)
-bundle exec jekyll serve --drafts
+# Build with development config
+bundle exec jekyll build --config _config.yml,_config_dev.yml
 ```
 
 #### Documentation Structure
 ```
 docs/
-├── _config.yml              # Jekyll configuration
+├── _config.yml              # Jekyll configuration (production)
+├── _config_dev.yml          # Development configuration (local)
+├── dev_server.sh            # Development server script
+├── favicon.ico              # Site favicon
+├── .gitignore               # Git ignore rules
 ├── _layouts/
 │   └── default.html         # Main page template
 ├── _includes/
@@ -738,8 +753,10 @@ docs/
 │   └── footer.html          # Site footer
 ├── assets/
 │   ├── css/style.css        # Custom styling
-│   └── js/main.js          # Interactive features
-├── index.md                 # Homepage
+│   ├── js/main.js          # Interactive features
+│   └── images/
+│       └── logo.svg         # Site logo
+├── index.html               # Homepage
 ├── installation.md          # Installation guide
 ├── getting-started.md       # Tutorial
 ├── cli-reference.md         # CLI documentation
@@ -748,11 +765,74 @@ docs/
 └── Gemfile                  # Jekyll dependencies
 ```
 
+#### Jekyll Configuration Details
+
+The documentation uses a dual-configuration approach to handle the GitHub Pages `baseurl` requirement while maintaining a smooth local development experience:
+
+**Production Configuration (`_config.yml`)**:
+- `baseurl: "/configsync"` - Required for GitHub Pages deployment
+- Site served at `https://dotbrains.github.io/configsync/`
+- Assets referenced with `/configsync/` prefix
+
+**Development Configuration (`_config_dev.yml`)**:
+- `baseurl: ""` - Empty baseurl for local development
+- Site served at `http://localhost:4000/`
+- Assets referenced without prefix for proper loading
+
+**Template Logic (`_layouts/default.html`)**:
+The layout template includes conditional logic to handle both environments:
+```liquid
+{% if site.baseurl == "" %}
+<link rel="stylesheet" href="/assets/css/style.css?v={{ site.github.build_revision }}">
+{% else %}
+<link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+{% endif %}
+```
+
+This ensures CSS and JavaScript files load correctly in both local development and production deployment.
+
 #### Contributing to Documentation
 - **Edit Markdown files** in the `docs/` directory
-- **Test locally** before submitting pull requests
+- **Test locally** using `./dev_server.sh` before submitting pull requests
 - **Follow style guide** for consistency
 - **Update navigation** in `_config.yml` if adding new pages
+- **Test both environments**: Local development and production-style serving
+
+#### Troubleshooting Documentation Development
+
+**CSS/JS Not Loading in Local Development:**
+```bash
+# Ensure you're using the development configuration
+./dev_server.sh
+# OR
+bundle exec jekyll serve --config _config.yml,_config_dev.yml
+
+# Visit: http://localhost:4000/ (NOT /configsync/)
+```
+
+**Jekyll Address Already in Use Error:**
+```bash
+# Kill existing Jekyll processes
+lsof -ti:4000 | xargs kill -9
+
+# Restart the server
+./dev_server.sh
+```
+
+**Missing Dependencies:**
+```bash
+# Reinstall Jekyll dependencies
+bundle install
+
+# If Ruby/Bundler issues:
+gem install bundler
+bundle install
+```
+
+**Asset 404 Errors:**
+- Check that `favicon.ico` exists in the `docs/` directory
+- Verify `assets/images/logo.svg` exists
+- Ensure you're using the development server script
 
 #### GitHub Pages Deployment
 The documentation automatically deploys to GitHub Pages when changes are pushed to the main branch:
