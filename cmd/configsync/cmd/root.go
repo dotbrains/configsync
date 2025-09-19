@@ -14,7 +14,7 @@ var (
 	configDir string
 	verbose   bool
 	dryRun    bool
-	version   string = "1.0.0" // Default version, overridden at build time
+	version   = "1.0.0" // Default version, overridden at build time
 )
 
 // rootCmd represents the base command when called without any subcommands
