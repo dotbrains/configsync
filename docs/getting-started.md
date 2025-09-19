@@ -10,364 +10,364 @@ permalink: /getting-started/
 
 ## Prerequisites
 
-    Before getting started, make sure you have:
+Before getting started, make sure you have:
 
-    - macOS 10.15 (Catalina) or later
-    - ConfigSync installed ([Installation Guide]({{ '/installation/' | relative_url }}))
-    - Applications you want to manage (VS Code, Chrome, etc.)
+- macOS 10.15 (Catalina) or later
+- ConfigSync installed ([Installation Guide]({{ '/installation/' | relative_url }}))
+- Applications you want to manage (VS Code, Chrome, etc.)
 
-    ## Step 1: Initialize ConfigSync
+## Step 1: Initialize ConfigSync
 
-    Start by initializing ConfigSync in your home directory:
+Start by initializing ConfigSync in your home directory:
 
-    ```bash
-    # Initialize ConfigSync
-    configsync init
-    ```
+```bash
+# Initialize ConfigSync
+configsync init
+```
 
-    This creates the following directory structure:
+This creates the following directory structure:
 
-    ```
-    ~/.configsync/
-    ├── config.yaml              # Main configuration registry
-    ├── store/                   # Central storage for configurations
-    ├── backups/                 # Automated backups
-    ├── logs/                    # Operation logs
-    └── temp/                    # Temporary files for operations
-    ```
+```
+~/.configsync/
+├── config.yaml              # Main configuration registry
+├── store/                   # Central storage for configurations
+├── backups/                 # Automated backups
+├── logs/                    # Operation logs
+└── temp/                    # Temporary files for operations
+```
 
-    ## Step 2: Discover Applications
+## Step 2: Discover Applications
 
-    ConfigSync can automatically discover installed applications and their configuration files:
+ConfigSync can automatically discover installed applications and their configuration files:
 
-    ```bash
-    # Discover all installed applications
-    configsync discover
+```bash
+# Discover all installed applications
+configsync discover
 
-    # View discovered applications in a table format
-    configsync discover --list
+# View discovered applications in a table format
+configsync discover --list
 
-    # Discover with detailed path information
-    configsync discover --list --verbose
-    ```
+# Discover with detailed path information
+configsync discover --list --verbose
+```
 
-    **Sample Output:**
-    ```
-    ┌─────────────────┬──────────────────────────────────────┬────────────────┐
-    │ Application     │ Bundle ID                            │ Configurations │
-    ├─────────────────┼──────────────────────────────────────┼────────────────┤
-    │ Visual Studio   │ com.microsoft.VSCode                 │ 3 files        │
-    │ Code            │                                      │                │
-    ├─────────────────┼──────────────────────────────────────┼────────────────┤
-    │ Google Chrome   │ com.google.Chrome                    │ 2 files        │
-    ├─────────────────┼──────────────────────────────────────┼────────────────┤
-    │ iTerm2          │ com.googlecode.iterm2                │ 1 file         │
-    └─────────────────┴──────────────────────────────────────┴────────────────┘
-    ```
+**Sample Output:**
+```
+┌─────────────────┬──────────────────────────────────────┬────────────────┐
+│ Application     │ Bundle ID                            │ Configurations │
+├─────────────────┼──────────────────────────────────────┼────────────────┤
+│ Visual Studio   │ com.microsoft.VSCode                 │ 3 files        │
+│ Code            │                                      │                │
+├─────────────────┼──────────────────────────────────────┼────────────────┤
+│ Google Chrome   │ com.google.Chrome                    │ 2 files        │
+├─────────────────┼──────────────────────────────────────┼────────────────┤
+│ iTerm2          │ com.googlecode.iterm2                │ 1 file         │
+└─────────────────┴──────────────────────────────────────┴────────────────┘
+```
 
-    ## Step 3: Add Applications
+## Step 3: Add Applications
 
-    You can add applications to ConfigSync management in several ways:
+You can add applications to ConfigSync management in several ways:
 
-    ### Automatic Addition (Recommended)
+### Automatic Addition (Recommended)
 
-    ```bash
-    # Auto-add all discovered applications
-    configsync discover --auto-add
+```bash
+# Auto-add all discovered applications
+configsync discover --auto-add
 
-    # Auto-add with preview (dry-run)
-    configsync discover --auto-add --dry-run
+# Auto-add with preview (dry-run)
+configsync discover --auto-add --dry-run
 
-    # Auto-add specific applications only
-    configsync discover --filter="vscode,chrome" --auto-add
-    ```
+# Auto-add specific applications only
+configsync discover --filter="vscode,chrome" --auto-add
+```
 
-    ### Manual Addition
+### Manual Addition
 
-    ```bash
-    # Add specific applications
-    configsync add vscode
-    configsync add "Google Chrome"
-    configsync add firefox terminal
+```bash
+# Add specific applications
+configsync add vscode
+configsync add "Google Chrome"
+configsync add firefox terminal
 
-    # Add multiple applications at once
-    configsync add vscode chrome firefox
-    ```
+# Add multiple applications at once
+configsync add vscode chrome firefox
+```
 
-    ## Step 4: Check Status
+## Step 4: Check Status
 
-    After adding applications, check their status:
+After adding applications, check their status:
 
-    ```bash
-    configsync status
-    ```
+```bash
+configsync status
+```
 
-    **Sample Output:**
-    ```
-    ConfigSync Status Report
-    ========================
+**Sample Output:**
+```
+ConfigSync Status Report
+========================
 
-    Configuration: ~/.configsync/config.yaml
-    Store Location: ~/.configsync/store/
+Configuration: ~/.configsync/config.yaml
+Store Location: ~/.configsync/store/
 
-    Applications (3 managed):
+Applications (3 managed):
 
-    ✅ Visual Studio Code (vscode)
-       Settings: ~/.configsync/store/Library/Application Support/Code/User/
-       Status: Synced (3 files)
-       Last Sync: 2024-01-15 14:30:45
+✅ Visual Studio Code (vscode)
+   Settings: ~/.configsync/store/Library/Application Support/Code/User/
+   Status: Synced (3 files)
+   Last Sync: 2024-01-15 14:30:45
 
-    ⚠️  Google Chrome (chrome)
-       Settings: ~/.configsync/store/Library/Application Support/Google/Chrome/
-       Status: Needs Sync (configuration changed)
-       Last Sync: Never
+⚠️  Google Chrome (chrome)
+   Settings: ~/.configsync/store/Library/Application Support/Google/Chrome/
+   Status: Needs Sync (configuration changed)
+   Last Sync: Never
 
-    🔗 iTerm2 (iterm2)
-       Settings: ~/.configsync/store/Library/Preferences/
-       Status: Linked (1 symlink active)
-       Last Sync: 2024-01-15 12:15:30
-    ```
+🔗 iTerm2 (iterm2)
+   Settings: ~/.configsync/store/Library/Preferences/
+   Status: Linked (1 symlink active)
+   Last Sync: 2024-01-15 12:15:30
+```
 
-    ## Step 5: Sync Configurations
+## Step 5: Sync Configurations
 
-    Sync your application configurations to the central store:
+Sync your application configurations to the central store:
 
-    ```bash
-    # Sync all applications
-    configsync sync
+```bash
+# Sync all applications
+configsync sync
 
-    # Preview sync operations (dry-run)
-    configsync sync --dry-run
+# Preview sync operations (dry-run)
+configsync sync --dry-run
 
-    # Sync specific applications only
-    configsync sync vscode chrome
+# Sync specific applications only
+configsync sync vscode chrome
 
-    # Force sync (override any conflicts)
-    configsync sync --force
-    ```
+# Force sync (override any conflicts)
+configsync sync --force
+```
 
-    The sync process will:
-    1. Create backups of existing configurations
-    2. Copy configurations to the central store
-    3. Create symlinks from app locations to the store
-    4. Verify symlink integrity
+The sync process will:
+1. Create backups of existing configurations
+2. Copy configurations to the central store
+3. Create symlinks from app locations to the store
+4. Verify symlink integrity
 
-    ## Step 6: Backup Management
+## Step 6: Backup Management
 
-    ConfigSync automatically creates backups, but you can also manage them manually:
+ConfigSync automatically creates backups, but you can also manage them manually:
 
-    ```bash
-    # Create manual backup
-    configsync backup
+```bash
+# Create manual backup
+configsync backup
 
-    # Backup specific applications
-    configsync backup vscode chrome
+# Backup specific applications
+configsync backup vscode chrome
 
-    # Validate existing backups
-    configsync backup --validate
+# Validate existing backups
+configsync backup --validate
 
-    # Clean up old backups (older than 30 days)
-    configsync backup --keep-days 30
+# Clean up old backups (older than 30 days)
+configsync backup --keep-days 30
 
-    # List available backups
-    configsync restore --list
-    ```
+# List available backups
+configsync restore --list
+```
 
-    ## Working with Multiple Macs
+## Working with Multiple Macs
 
-    ConfigSync makes it easy to deploy your configurations to multiple Mac systems.
+ConfigSync makes it easy to deploy your configurations to multiple Mac systems.
 
-    ### Exporting Configurations
+### Exporting Configurations
 
-    On your source Mac:
+On your source Mac:
 
-    ```bash
-    # Export all configurations
-    configsync export --output my-configs.tar.gz
+```bash
+# Export all configurations
+configsync export --output my-configs.tar.gz
 
-    # Export specific applications only
-    configsync export --output dev-tools.tar.gz --apps "vscode,git,ssh"
+# Export specific applications only
+configsync export --output dev-tools.tar.gz --apps "vscode,git,ssh"
 
-    # Export to a specific directory
-    configsync export --output ~/Desktop/my-setup.tar.gz
-    ```
+# Export to a specific directory
+configsync export --output ~/Desktop/my-setup.tar.gz
+```
 
-    ### Importing on New Mac
+### Importing on New Mac
 
-    On your target Mac:
+On your target Mac:
 
-    ```bash
-    # Initialize ConfigSync
-    configsync init
+```bash
+# Initialize ConfigSync
+configsync init
 
-    # Import the configuration bundle
-    configsync import ~/Desktop/my-configs.tar.gz
+# Import the configuration bundle
+configsync import ~/Desktop/my-configs.tar.gz
 
-    # Deploy the configurations
-    configsync deploy
+# Deploy the configurations
+configsync deploy
 
-    # Or deploy with force (if conflicts exist)
-    configsync deploy --force
-    ```
+# Or deploy with force (if conflicts exist)
+configsync deploy --force
+```
 
-    ## Advanced Usage
+## Advanced Usage
 
-    ### Filter Discovery Results
+### Filter Discovery Results
 
-    ```bash
-    # Discover only development tools
-    configsync discover --filter="vscode,sublime,iterm"
+```bash
+# Discover only development tools
+configsync discover --filter="vscode,sublime,iterm"
 
-    # Discover browsers only
-    configsync discover --filter="chrome,firefox,safari"
+# Discover browsers only
+configsync discover --filter="chrome,firefox,safari"
 
-    # Use patterns in filters
-    configsync discover --filter="*code*,*term*"
-    ```
+# Use patterns in filters
+configsync discover --filter="*code*,*term*"
+```
 
-    ### Custom Configuration Paths
+### Custom Configuration Paths
 
-    You can manually specify configuration paths for applications not automatically detected:
+You can manually specify configuration paths for applications not automatically detected:
 
-    ```bash
-    # Add application with custom paths
-    configsync add myapp --config-path="~/Library/Preferences/com.myapp.plist"
-    ```
+```bash
+# Add application with custom paths
+configsync add myapp --config-path="~/Library/Preferences/com.myapp.plist"
+```
 
-    ### Selective Sync
+### Selective Sync
 
-    ```bash
-    # Sync only specific file types
-    configsync sync --include="*.json,*.plist"
+```bash
+# Sync only specific file types
+configsync sync --include="*.json,*.plist"
 
-    # Exclude certain files from sync
-    configsync sync --exclude="cache/*,logs/*"
-    ```
+# Exclude certain files from sync
+configsync sync --exclude="cache/*,logs/*"
+```
 
-    ## Common Workflows
+## Common Workflows
 
-    ### Daily Development Setup
+### Daily Development Setup
 
-    ```bash
-    # Morning routine: sync latest changes
-    configsync sync
-    configsync status
+```bash
+# Morning routine: sync latest changes
+configsync sync
+configsync status
 
-    # Check for new applications
-    configsync discover --auto-add --dry-run
-    ```
+# Check for new applications
+configsync discover --auto-add --dry-run
+```
 
-    ### Setting Up a New Mac
+### Setting Up a New Mac
 
-    ```bash
-    # On new Mac
-    configsync init
-    configsync import ~/path/to/backup.tar.gz
-    configsync deploy --force
+```bash
+# On new Mac
+configsync init
+configsync import ~/path/to/backup.tar.gz
+configsync deploy --force
 
-    # Verify everything is working
-    configsync status
-    ```
+# Verify everything is working
+configsync status
+```
 
-    ### Before Major Changes
+### Before Major Changes
 
-    ```bash
-    # Create full backup before updates
-    configsync backup --validate
+```bash
+# Create full backup before updates
+configsync backup --validate
 
-    # Make changes to your applications
-    # ...
+# Make changes to your applications
+# ...
 
-    # Sync changes to central store
-    configsync sync
-    ```
+# Sync changes to central store
+configsync sync
+```
 
-    ## Troubleshooting
+## Troubleshooting
 
-    ### Sync Issues
+### Sync Issues
 
-    If sync operations fail:
+If sync operations fail:
 
-    ```bash
-    # Check detailed status
-    configsync status --verbose
+```bash
+# Check detailed status
+configsync status --verbose
 
-    # View recent logs
-    tail -f ~/.configsync/logs/configsync.log
+# View recent logs
+tail -f ~/.configsync/logs/configsync.log
 
-    # Reset and re-sync specific app
-    configsync remove appname
-    configsync add appname
-    configsync sync appname
-    ```
+# Reset and re-sync specific app
+configsync remove appname
+configsync add appname
+configsync sync appname
+```
 
-    ### Backup Recovery
+### Backup Recovery
 
-    If you need to restore from backup:
+If you need to restore from backup:
 
-    ```bash
-    # List available backups
-    configsync restore --list
+```bash
+# List available backups
+configsync restore --list
 
-    # Restore specific application
-    configsync restore vscode
+# Restore specific application
+configsync restore vscode
 
-    # Restore all applications
-    configsync restore --all
+# Restore all applications
+configsync restore --all
 
-    # Restore from specific backup date
-    configsync restore --backup-date=2024-01-15
-    ```
+# Restore from specific backup date
+configsync restore --backup-date=2024-01-15
+```
 
-    ### Symlink Problems
+### Symlink Problems
 
-    If symlinks become broken:
+If symlinks become broken:
 
-    ```bash
-    # Check symlink integrity
-    configsync status --check-integrity
+```bash
+# Check symlink integrity
+configsync status --check-integrity
 
-    # Rebuild symlinks
-    configsync sync --rebuild-links
+# Rebuild symlinks
+configsync sync --rebuild-links
 
-    # Remove and re-add problematic app
-    configsync remove appname
-    configsync add appname
-    configsync sync appname
-    ```
+# Remove and re-add problematic app
+configsync remove appname
+configsync add appname
+configsync sync appname
+```
 
-    ## Best Practices
+## Best Practices
 
-    ### Regular Maintenance
+### Regular Maintenance
 
-    - Run `configsync sync` regularly to keep configurations up-to-date
-    - Use `configsync backup --validate` weekly to ensure backup integrity
-    - Clean up old backups monthly with `--keep-days` option
-    - Check `configsync status` before major system changes
+- Run `configsync sync` regularly to keep configurations up-to-date
+- Use `configsync backup --validate` weekly to ensure backup integrity
+- Clean up old backups monthly with `--keep-days` option
+- Check `configsync status` before major system changes
 
-    ### Version Control Integration
+### Version Control Integration
 
-    Consider version controlling your ConfigSync store:
+Consider version controlling your ConfigSync store:
 
-    ```bash
-    cd ~/.configsync/store/
-    git init
-    git add .
-    git commit -m "Initial configuration backup"
+```bash
+cd ~/.configsync/store/
+git init
+git add .
+git commit -m "Initial configuration backup"
 
-    # After changes
-    configsync sync
-    cd ~/.configsync/store/
-    git add .
-    git commit -m "Updated configurations"
-    ```
+# After changes
+configsync sync
+cd ~/.configsync/store/
+git add .
+git commit -m "Updated configurations"
+```
 
-    ### Security Considerations
+### Security Considerations
 
-    - Be careful with sensitive configuration files
-    - Consider excluding files with passwords or tokens
-    - Use `.gitignore` if version controlling the store
-    - Regularly validate backup checksums
+- Be careful with sensitive configuration files
+- Consider excluding files with passwords or tokens
+- Use `.gitignore` if version controlling the store
+- Regularly validate backup checksums
 
 ## Next Steps
 
