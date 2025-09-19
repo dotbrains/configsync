@@ -16,39 +16,17 @@ This project and everyone participating in it is governed by our Code of Conduct
 
 There are many ways you can contribute to ConfigSync:
 
-<div class="features-grid" style="margin: 2rem 0;">
-    <div class="feature-card">
-        <div class="feature-icon" style="background: linear-gradient(135deg, #ef4444, #f97316);">
-            <i class="fas fa-bug"></i>
-        </div>
-        <h3>Report Bugs</h3>
-        <p>Help us improve by reporting bugs, issues, or unexpected behavior you encounter.</p>
-    </div>
+### 🐛 Report Bugs
+Help us improve by reporting bugs, issues, or unexpected behavior you encounter.
 
-    <div class="feature-card">
-        <div class="feature-icon" style="background: linear-gradient(135deg, #10b981, #06d6a0);">
-            <i class="fas fa-lightbulb"></i>
-        </div>
-        <h3>Suggest Features</h3>
-        <p>Share your ideas for new features or improvements to existing functionality.</p>
-    </div>
+### 💡 Suggest Features
+Share your ideas for new features or improvements to existing functionality.
 
-    <div class="feature-card">
-        <div class="feature-icon" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">
-            <i class="fas fa-code"></i>
-        </div>
-        <h3>Submit Code</h3>
-        <p>Contribute bug fixes, new features, or improvements to the codebase.</p>
-    </div>
+### 💻 Submit Code
+Contribute bug fixes, new features, or improvements to the codebase.
 
-    <div class="feature-card">
-        <div class="feature-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
-            <i class="fas fa-file-alt"></i>
-        </div>
-        <h3>Improve Documentation</h3>
-        <p>Help make ConfigSync more accessible by improving documentation and examples.</p>
-    </div>
-</div>
+### 📝 Improve Documentation
+Help make ConfigSync more accessible by improving documentation and examples.
 
 ## Reporting Bugs
 
