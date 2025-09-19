@@ -457,9 +457,3 @@ We appreciate all contributions to ConfigSync! Contributors are recognized in:
 
 - **[View on GitHub](https://github.com/dotbrains/configsync)** - Explore the codebase and open issues
 - **[Create Issue](https://github.com/dotbrains/configsync/issues/new)** - Report bugs or suggest features
-
----
-
-**Thank you for contributing to ConfigSync!** 🎉
-
-Your contributions help make configuration management better for the entire macOS community.
