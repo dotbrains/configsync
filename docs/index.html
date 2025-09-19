@@ -12,7 +12,7 @@ title: Home
                 <i class="fas fa-download"></i>
                 Get Started
             </a>
-            <a href="https://github.com/{{ site.repository }}" class="btn btn-secondary" target="_blank">
+            <a href="https://github.com/dotbrains/configsync" class="btn btn-secondary" target="_blank">
                 <i class="fab fa-github"></i>
                 View on GitHub
             </a>
@@ -110,19 +110,15 @@ title: Home
     </div>
 </section>
 
-</section>
-
-<div class="py-4" style="background: var(--bg-secondary);">
+<section class="py-4" style="background: var(--bg-secondary);">
     <div class="content">
         <h2 class="text-center">Quick Start</h2>
         <p class="text-center section-subtitle">
             Get up and running with ConfigSync in minutes
         </p>
-    </div>
-</div>
 
-```bash
-# Install ConfigSync
+        <div class="highlight">
+            <pre><code class="language-bash"># Install ConfigSync
 brew install dotbrains/tap/configsync
 
 # Initialize ConfigSync
@@ -135,17 +131,17 @@ configsync discover --auto-add
 configsync sync
 
 # Export for deployment to another Mac
-configsync export --output my-configs.tar.gz
-```
+configsync export --output my-configs.tar.gz</code></pre>
+        </div>
 
-<div class="text-center mt-4">
-    <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
-        <i class="fas fa-play"></i>
-        View Complete Guide
-    </a>
-</div>
-
-<section class="content">
+        <div class="text-center mt-4">
+            <a href="{{ '/getting-started/' | relative_url }}" class="btn btn-primary">
+                <i class="fas fa-play"></i>
+                View Complete Guide
+            </a>
+        </div>
+    </div>
+</section>
 
 <section class="content">
     <div style="max-width: 1200px; margin: 0 auto;">
