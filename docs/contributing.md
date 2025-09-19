@@ -8,472 +8,472 @@ permalink: /contributing/
 
 *Help make ConfigSync better for everyone*
 
-    ## Code of Conduct
+## Code of Conduct
 
-    This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code and help create a welcoming environment for all contributors.
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code and help create a welcoming environment for all contributors.
 
-    ## Ways to Contribute
+## Ways to Contribute
 
-    There are many ways you can contribute to ConfigSync:
+There are many ways you can contribute to ConfigSync:
 
-    <div class="features-grid" style="margin: 2rem 0;">
-        <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #ef4444, #f97316);">
-                <i class="fas fa-bug"></i>
-            </div>
-            <h3>Report Bugs</h3>
-            <p>Help us improve by reporting bugs, issues, or unexpected behavior you encounter.</p>
+<div class="features-grid" style="margin: 2rem 0;">
+    <div class="feature-card">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #ef4444, #f97316);">
+            <i class="fas fa-bug"></i>
         </div>
-
-        <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #10b981, #06d6a0);">
-                <i class="fas fa-lightbulb"></i>
-            </div>
-            <h3>Suggest Features</h3>
-            <p>Share your ideas for new features or improvements to existing functionality.</p>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">
-                <i class="fas fa-code"></i>
-            </div>
-            <h3>Submit Code</h3>
-            <p>Contribute bug fixes, new features, or improvements to the codebase.</p>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
-                <i class="fas fa-file-alt"></i>
-            </div>
-            <h3>Improve Documentation</h3>
-            <p>Help make ConfigSync more accessible by improving documentation and examples.</p>
-        </div>
+        <h3>Report Bugs</h3>
+        <p>Help us improve by reporting bugs, issues, or unexpected behavior you encounter.</p>
     </div>
 
-    ## Reporting Bugs
+    <div class="feature-card">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #10b981, #06d6a0);">
+            <i class="fas fa-lightbulb"></i>
+        </div>
+        <h3>Suggest Features</h3>
+        <p>Share your ideas for new features or improvements to existing functionality.</p>
+    </div>
 
-    Before creating bug reports, please check the existing issues to see if the problem has already been reported. When you create a bug report, please include:
+    <div class="feature-card">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #8b5cf6, #a855f7);">
+            <i class="fas fa-code"></i>
+        </div>
+        <h3>Submit Code</h3>
+        <p>Contribute bug fixes, new features, or improvements to the codebase.</p>
+    </div>
 
-    ### Essential Information
+    <div class="feature-card">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <h3>Improve Documentation</h3>
+        <p>Help make ConfigSync more accessible by improving documentation and examples.</p>
+    </div>
+</div>
 
-    - **Clear, descriptive title** - Summarize the issue in one line
-    - **Steps to reproduce** - Exact steps that cause the problem
-    - **Expected behavior** - What you thought should happen
-    - **Actual behavior** - What actually happened instead
-    - **System information**:
-      - macOS version (e.g., macOS 14.1 Sonoma)
-      - ConfigSync version (`configsync --version`)
-      - Architecture (Intel or Apple Silicon)
+## Reporting Bugs
 
-    ### Additional Context
+Before creating bug reports, please check the existing issues to see if the problem has already been reported. When you create a bug report, please include:
 
-    ```bash
-    # Include verbose output when relevant
-    configsync status --verbose
-    configsync sync --dry-run --verbose
+### Essential Information
 
-    # Include configuration if applicable
-    cat ~/.configsync/config.yaml
+- **Clear, descriptive title** - Summarize the issue in one line
+- **Steps to reproduce** - Exact steps that cause the problem
+- **Expected behavior** - What you thought should happen
+- **Actual behavior** - What actually happened instead
+- **System information**:
+  - macOS version (e.g., macOS 14.1 Sonoma)
+  - ConfigSync version (`configsync --version`)
+  - Architecture (Intel or Apple Silicon)
 
-    # Include recent logs
-    tail -20 ~/.configsync/logs/configsync.log
-    ```
+### Additional Context
 
-    ### Bug Report Template
+```bash
+# Include verbose output when relevant
+configsync status --verbose
+configsync sync --dry-run --verbose
 
-    ```markdown
-    **Describe the bug**
-    A clear description of what the bug is.
+# Include configuration if applicable
+cat ~/.configsync/config.yaml
 
-    **To Reproduce**
-    Steps to reproduce the behavior:
-    1. Run `configsync init`
-    2. Execute `configsync add vscode`
-    3. Run `configsync sync`
-    4. See error
+# Include recent logs
+tail -20 ~/.configsync/logs/configsync.log
+```
 
-    **Expected behavior**
-    ConfigSync should create symlinks without errors.
+### Bug Report Template
 
-    **System Information**
-    - macOS: [e.g., 14.1 Sonoma]
-    - ConfigSync: [e.g., v1.2.3]
-    - Architecture: [Intel/Apple Silicon]
+```markdown
+**Describe the bug**
+A clear description of what the bug is.
 
-    **Additional context**
-    Add any other context, logs, or screenshots.
-    ```
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Run `configsync init`
+2. Execute `configsync add vscode`
+3. Run `configsync sync`
+4. See error
 
-    ## Suggesting Enhancements
+**Expected behavior**
+ConfigSync should create symlinks without errors.
 
-    Enhancement suggestions help make ConfigSync better for everyone. When creating an enhancement suggestion:
+**System Information**
+- macOS: [e.g., 14.1 Sonoma]
+- ConfigSync: [e.g., v1.2.3]
+- Architecture: [Intel/Apple Silicon]
 
-    ### What to Include
+**Additional context**
+Add any other context, logs, or screenshots.
+```
 
-    - **Clear title** - Summarize the enhancement briefly
-    - **Problem statement** - What problem does this solve?
-    - **Proposed solution** - How would you like it to work?
-    - **Use cases** - When would this be useful?
-    - **Examples** - Show how it would work in practice
+## Suggesting Enhancements
 
-    ### Enhancement Template
+Enhancement suggestions help make ConfigSync better for everyone. When creating an enhancement suggestion:
 
-    ```markdown
-    **Is your feature request related to a problem?**
-    A clear description of what the problem is.
+### What to Include
 
-    **Describe the solution you'd like**
-    A clear description of what you want to happen.
+- **Clear title** - Summarize the enhancement briefly
+- **Problem statement** - What problem does this solve?
+- **Proposed solution** - How would you like it to work?
+- **Use cases** - When would this be useful?
+- **Examples** - Show how it would work in practice
 
-    **Describe alternatives you've considered**
-    Other solutions you've thought about.
+### Enhancement Template
 
-    **Additional context**
-    Any other context or screenshots about the feature request.
-    ```
+```markdown
+**Is your feature request related to a problem?**
+A clear description of what the problem is.
 
-    ## Development Setup
+**Describe the solution you'd like**
+A clear description of what you want to happen.
 
-    Ready to contribute code? Here's how to set up your development environment:
+**Describe alternatives you've considered**
+Other solutions you've thought about.
 
-    ### Prerequisites
+**Additional context**
+Any other context or screenshots about the feature request.
+```
 
-    - **Go 1.21 or later** - [Download Go](https://golang.org/dl/)
-    - **macOS** - Required for testing macOS-specific functionality
-    - **Git** - For version control
-    - **Make** - For build automation
+## Development Setup
 
-    ### Getting Started
+Ready to contribute code? Here's how to set up your development environment:
 
-    ```bash
-    # 1. Fork the repository on GitHub
-    # 2. Clone your fork
-    git clone https://github.com/YOUR-USERNAME/configsync.git
-    cd configsync
+### Prerequisites
 
-    # 3. Add upstream remote
-    git remote add upstream https://github.com/dotbrains/configsync.git
+- **Go 1.21 or later** - [Download Go](https://golang.org/dl/)
+- **macOS** - Required for testing macOS-specific functionality
+- **Git** - For version control
+- **Make** - For build automation
 
-    # 4. Install dependencies
-    go mod download
+### Getting Started
 
-    # 5. Build the project
-    make build
+```bash
+# 1. Fork the repository on GitHub
+# 2. Clone your fork
+git clone https://github.com/YOUR-USERNAME/configsync.git
+cd configsync
 
-    # 6. Run tests
-    make test
+# 3. Add upstream remote
+git remote add upstream https://github.com/dotbrains/configsync.git
 
-    # 7. Run linter
-    make lint
-    ```
+# 4. Install dependencies
+go mod download
 
-    ### Development Workflow
+# 5. Build the project
+make build
 
-    ```bash
-    # 1. Create a feature branch
-    git checkout -b feature/your-feature-name
+# 6. Run tests
+make test
 
-    # 2. Make your changes
-    # ... edit files ...
+# 7. Run linter
+make lint
+```
 
-    # 3. Test your changes
-    make test
-    make lint
+### Development Workflow
 
-    # 4. Commit your changes
-    git add .
-    git commit -m "feat: add your feature description"
+```bash
+# 1. Create a feature branch
+git checkout -b feature/your-feature-name
 
-    # 5. Push to your fork
-    git push origin feature/your-feature-name
+# 2. Make your changes
+# ... edit files ...
 
-    # 6. Create a Pull Request on GitHub
-    ```
+# 3. Test your changes
+make test
+make lint
 
-    ## Code Style Guidelines
+# 4. Commit your changes
+git add .
+git commit -m "feat: add your feature description"
 
-    ### Go Code Style
+# 5. Push to your fork
+git push origin feature/your-feature-name
 
-    - **Follow `go fmt`** - All code must be formatted with `go fmt`
-    - **Use `goimports`** - Organize imports automatically
-    - **Write clear comments** - Explain complex logic and public APIs
-    - **Keep functions focused** - One responsibility per function
-    - **Use meaningful names** - Variables and functions should be self-documenting
+# 6. Create a Pull Request on GitHub
+```
 
-    ### Example Code Style
+## Code Style Guidelines
 
-    ```go
-    // Good: Clear function with focused responsibility
-    func validateConfigPath(path string) error {
-        if path == "" {
-            return errors.New("configuration path cannot be empty")
-        }
+### Go Code Style
 
-        if !filepath.IsAbs(path) {
-            return fmt.Errorf("configuration path must be absolute: %s", path)
-        }
+- **Follow `go fmt`** - All code must be formatted with `go fmt`
+- **Use `goimports`** - Organize imports automatically
+- **Write clear comments** - Explain complex logic and public APIs
+- **Keep functions focused** - One responsibility per function
+- **Use meaningful names** - Variables and functions should be self-documenting
 
-        return nil
+### Example Code Style
+
+```go
+// Good: Clear function with focused responsibility
+func validateConfigPath(path string) error {
+    if path == "" {
+        return errors.New("configuration path cannot be empty")
     }
 
-    // Good: Table-driven test
-    func TestValidateConfigPath(t *testing.T) {
-        tests := []struct {
-            name    string
-            path    string
-            wantErr bool
-        }{
-            {"valid absolute path", "/home/user/config", false},
-            {"empty path", "", true},
-            {"relative path", "config", true},
-        }
-
-        for _, tt := range tests {
-            t.Run(tt.name, func(t *testing.T) {
-                err := validateConfigPath(tt.path)
-                if (err != nil) != tt.wantErr {
-                    t.Errorf("validateConfigPath() error = %v, wantErr %v", err, tt.wantErr)
-                }
-            })
-        }
+    if !filepath.IsAbs(path) {
+        return fmt.Errorf("configuration path must be absolute: %s", path)
     }
-    ```
 
-    ## Testing Guidelines
+    return nil
+}
 
-    ConfigSync maintains high test coverage (75%+). When contributing:
+// Good: Table-driven test
+func TestValidateConfigPath(t *testing.T) {
+    tests := []struct {
+        name    string
+        path    string
+        wantErr bool
+    }{
+        {"valid absolute path", "/home/user/config", false},
+        {"empty path", "", true},
+        {"relative path", "config", true},
+    }
 
-    ### Writing Tests
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            err := validateConfigPath(tt.path)
+            if (err != nil) != tt.wantErr {
+                t.Errorf("validateConfigPath() error = %v, wantErr %v", err, tt.wantErr)
+            }
+        })
+    }
+}
+```
 
-    - **Unit tests** for all new functions
-    - **Integration tests** for CLI commands
-    - **Edge case testing** for error conditions
-    - **Cross-platform testing** on Intel and Apple Silicon
+## Testing Guidelines
 
-    ### Test Structure
+ConfigSync maintains high test coverage (75%+). When contributing:
 
-    ```bash
-    # Run all tests
-    make test
+### Writing Tests
 
-    # Run specific package tests
-    go test ./pkg/config -v
+- **Unit tests** for all new functions
+- **Integration tests** for CLI commands
+- **Edge case testing** for error conditions
+- **Cross-platform testing** on Intel and Apple Silicon
 
-    # Run with coverage
-    make test-coverage
+### Test Structure
 
-    # Run with race detection
-    go test -race ./...
-    ```
+```bash
+# Run all tests
+make test
 
-    ### Test Naming Convention
+# Run specific package tests
+go test ./pkg/config -v
 
-    ```go
-    func TestFunctionName(t *testing.T)           # Basic test
-    func TestFunctionName_ErrorCase(t *testing.T) # Error condition
-    func TestFunctionName_EdgeCase(t *testing.T)  # Edge case
-    ```
+# Run with coverage
+make test-coverage
 
-    ## Adding Application Support
+# Run with race detection
+go test -race ./...
+```
 
-    One of the most valuable contributions is adding support for new macOS applications.
+### Test Naming Convention
 
-    ### Research Phase
+```go
+func TestFunctionName(t *testing.T)           # Basic test
+func TestFunctionName_ErrorCase(t *testing.T) # Error condition
+func TestFunctionName_EdgeCase(t *testing.T)  # Edge case
+```
 
-    Before adding an application, research its configuration:
+## Adding Application Support
 
-    ```bash
-    # Find the application bundle
-    find /Applications -name "*.app" -exec basename {} \; | grep -i "appname"
+One of the most valuable contributions is adding support for new macOS applications.
 
-    # Check the bundle ID
-    plutil -p /Applications/AppName.app/Contents/Info.plist | grep CFBundleIdentifier
+### Research Phase
 
-    # Find configuration files
-    find ~/Library -name "*appname*" -type f 2>/dev/null
-    find ~/Library -name "*bundleid*" -type f 2>/dev/null
-    ```
+Before adding an application, research its configuration:
 
-    ### Implementation Steps
+```bash
+# Find the application bundle
+find /Applications -name "*.app" -exec basename {} \; | grep -i "appname"
 
-    1. **Add to detector** (`pkg/apps/detector.go`):
+# Check the bundle ID
+plutil -p /Applications/AppName.app/Contents/Info.plist | grep CFBundleIdentifier
 
-    ```go
-    "appname": {
-        Name:        "appname",
-        DisplayName: "Application Name",
-        BundleID:    "com.company.appname",
-        Paths: []PathInfo{
-            {
-                Source:      "~/Library/Preferences/com.company.appname.plist",
-                Destination: "Library/Preferences/com.company.appname.plist",
-                Type:        config.PathTypeFile,
-                Required:    false,
-            },
-            {
-                Source:      "~/Library/Application Support/AppName/",
-                Destination: "Library/Application Support/AppName/",
-                Type:        config.PathTypeDirectory,
-                Required:    true,
-            },
+# Find configuration files
+find ~/Library -name "*appname*" -type f 2>/dev/null
+find ~/Library -name "*bundleid*" -type f 2>/dev/null
+```
+
+### Implementation Steps
+
+1. **Add to detector** (`pkg/apps/detector.go`):
+
+```go
+"appname": {
+    Name:        "appname",
+    DisplayName: "Application Name",
+    BundleID:    "com.company.appname",
+    Paths: []PathInfo{
+        {
+            Source:      "~/Library/Preferences/com.company.appname.plist",
+            Destination: "Library/Preferences/com.company.appname.plist",
+            Type:        config.PathTypeFile,
+            Required:    false,
+        },
+        {
+            Source:      "~/Library/Application Support/AppName/",
+            Destination: "Library/Application Support/AppName/",
+            Type:        config.PathTypeDirectory,
+            Required:    true,
         },
     },
-    ```
+},
+```
 
-    2. **Add tests** (`pkg/apps/detector_test.go`):
+2. **Add tests** (`pkg/apps/detector_test.go`):
 
-    ```go
-    func TestDetectAppName(t *testing.T) {
-        detector := NewDetector()
-        apps := detector.DetectApplications()
+```go
+func TestDetectAppName(t *testing.T) {
+    detector := NewDetector()
+    apps := detector.DetectApplications()
 
-        // Test if app is detected when installed
-        // Test configuration paths are correct
-    }
-    ```
+    // Test if app is detected when installed
+    // Test configuration paths are correct
+}
+```
 
-    3. **Test manually**:
+3. **Test manually**:
 
-    ```bash
-    # Test discovery
-    configsync discover --filter="appname" --list --verbose
+```bash
+# Test discovery
+configsync discover --filter="appname" --list --verbose
 
-    # Test addition
-    configsync add appname --dry-run
+# Test addition
+configsync add appname --dry-run
 
-    # Test sync
-    configsync sync appname --dry-run
-    ```
+# Test sync
+configsync sync appname --dry-run
+```
 
-    4. **Update documentation**:
-    - Add to README.md supported applications list
-    - Add usage examples if needed
-    - Update this documentation site
+4. **Update documentation**:
+- Add to README.md supported applications list
+- Add usage examples if needed
+- Update this documentation site
 
-    ## Pull Request Process
+## Pull Request Process
 
-    ### Before Submitting
+### Before Submitting
 
-    - [ ] Tests pass (`make test`)
-    - [ ] Linter passes (`make lint`)
-    - [ ] Documentation updated if needed
-    - [ ] CHANGELOG.md updated for notable changes
-    - [ ] Commit messages follow conventions
+- [ ] Tests pass (`make test`)
+- [ ] Linter passes (`make lint`)
+- [ ] Documentation updated if needed
+- [ ] CHANGELOG.md updated for notable changes
+- [ ] Commit messages follow conventions
 
-    ### PR Description Template
+### PR Description Template
 
-    ```markdown
-    ## Description
-    Brief description of changes and motivation.
+```markdown
+## Description
+Brief description of changes and motivation.
 
-    ## Type of Change
-    - [ ] Bug fix (non-breaking change which fixes an issue)
-    - [ ] New feature (non-breaking change which adds functionality)
-    - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-    - [ ] Documentation update
+## Type of Change
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
 
-    ## Testing
-    - [ ] Unit tests added/updated
-    - [ ] Manual testing completed
-    - [ ] Tested on Intel Mac
-    - [ ] Tested on Apple Silicon Mac
+## Testing
+- [ ] Unit tests added/updated
+- [ ] Manual testing completed
+- [ ] Tested on Intel Mac
+- [ ] Tested on Apple Silicon Mac
 
-    ## Checklist
-    - [ ] Code follows project style guidelines
-    - [ ] Self-review completed
-    - [ ] Documentation updated
-    - [ ] No breaking changes or breaking changes documented
-    ```
+## Checklist
+- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] No breaking changes or breaking changes documented
+```
 
-    ### Review Process
+### Review Process
 
-    1. **Automated Checks** - GitHub Actions run tests and linting
-    2. **Code Review** - Maintainers review code and provide feedback
-    3. **Discussion** - Address any questions or requested changes
-    4. **Approval** - Once approved, maintainers will merge
+1. **Automated Checks** - GitHub Actions run tests and linting
+2. **Code Review** - Maintainers review code and provide feedback
+3. **Discussion** - Address any questions or requested changes
+4. **Approval** - Once approved, maintainers will merge
 
-    ## Commit Message Guidelines
+## Commit Message Guidelines
 
-    We follow conventional commit format for clear history:
+We follow conventional commit format for clear history:
 
-    ### Format
+### Format
 
-    ```
-    <type>(<scope>): <description>
+```
+<type>(<scope>): <description>
 
-    [optional body]
+[optional body]
 
-    [optional footer]
-    ```
+[optional footer]
+```
 
-    ### Types
+### Types
 
-    - `feat:` - New feature
-    - `fix:` - Bug fix
-    - `docs:` - Documentation changes
-    - `style:` - Code style changes (formatting, etc.)
-    - `refactor:` - Code refactoring
-    - `test:` - Adding or updating tests
-    - `chore:` - Maintenance tasks
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code refactoring
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks
 
-    ### Examples
+### Examples
 
-    ```bash
-    feat(apps): add support for Sublime Text configuration sync
+```bash
+feat(apps): add support for Sublime Text configuration sync
 
-    fix(sync): resolve symlink creation issue on Apple Silicon
+fix(sync): resolve symlink creation issue on Apple Silicon
 
-    docs(readme): update installation instructions for Homebrew
+docs(readme): update installation instructions for Homebrew
 
-    test(backup): add integration tests for backup validation
-    ```
+test(backup): add integration tests for backup validation
+```
 
-    ## Release Process
+## Release Process
 
-    ConfigSync uses automated releases with manual fallbacks. Contributors don't typically handle releases, but here's the overview:
+ConfigSync uses automated releases with manual fallbacks. Contributors don't typically handle releases, but here's the overview:
 
-    ### For Maintainers
+### For Maintainers
 
-    1. **Update CHANGELOG.md** with release notes
-    2. **Create and push tag** (e.g., `v1.2.3`)
-    3. **Monitor GitHub Actions** for automated release
-    4. **Handle Homebrew update** if automation fails
+1. **Update CHANGELOG.md** with release notes
+2. **Create and push tag** (e.g., `v1.2.3`)
+3. **Monitor GitHub Actions** for automated release
+4. **Handle Homebrew update** if automation fails
 
-    See [RELEASE.md](https://github.com/dotbrains/configsync/blob/main/RELEASE.md) for complete details.
+See [RELEASE.md](https://github.com/dotbrains/configsync/blob/main/RELEASE.md) for complete details.
 
-    ## Getting Help
+## Getting Help
 
-    Need help contributing? Here are ways to get support:
+Need help contributing? Here are ways to get support:
 
-    <div class="features-grid" style="margin: 2rem 0;">
-        <div class="feature-card">
-            <h4><i class="fas fa-comments" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Discussions</h4>
-            <p><a href="https://github.com/dotbrains/configsync/discussions" target="_blank">GitHub Discussions</a> for questions and ideas</p>
-        </div>
-
-        <div class="feature-card">
-            <h4><i class="fas fa-bug" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Issues</h4>
-            <p><a href="https://github.com/dotbrains/configsync/issues" target="_blank">GitHub Issues</a> for bugs and feature requests</p>
-        </div>
-
-        <div class="feature-card">
-            <h4><i class="fas fa-code-branch" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Pull Requests</h4>
-            <p><a href="https://github.com/dotbrains/configsync/pulls" target="_blank">GitHub PRs</a> for code contributions</p>
-        </div>
-
-        <div class="feature-card">
-            <h4><i class="fas fa-question-circle" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Questions</h4>
-            <p>Open an issue with "question" label for contribution help</p>
-        </div>
+<div class="features-grid" style="margin: 2rem 0;">
+    <div class="feature-card">
+        <h4><i class="fas fa-comments" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Discussions</h4>
+        <p><a href="https://github.com/dotbrains/configsync/discussions" target="_blank">GitHub Discussions</a> for questions and ideas</p>
     </div>
 
-    ## Recognition
+    <div class="feature-card">
+        <h4><i class="fas fa-bug" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Issues</h4>
+        <p><a href="https://github.com/dotbrains/configsync/issues" target="_blank">GitHub Issues</a> for bugs and feature requests</p>
+    </div>
 
-    We appreciate all contributions to ConfigSync! Contributors are recognized in:
+    <div class="feature-card">
+        <h4><i class="fas fa-code-branch" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Pull Requests</h4>
+        <p><a href="https://github.com/dotbrains/configsync/pulls" target="_blank">GitHub PRs</a> for code contributions</p>
+    </div>
 
-    - **GitHub Contributors** page
-    - **CHANGELOG.md** for notable contributions
-    - **README.md** acknowledgments section
+    <div class="feature-card">
+        <h4><i class="fas fa-question-circle" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Questions</h4>
+        <p>Open an issue with "question" label for contribution help</p>
+    </div>
+</div>
+
+## Recognition
+
+We appreciate all contributions to ConfigSync! Contributors are recognized in:
+
+- **GitHub Contributors** page
+- **CHANGELOG.md** for notable contributions
+- **README.md** acknowledgments section
 
 ## Get Started
 
