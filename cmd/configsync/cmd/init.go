@@ -23,7 +23,7 @@ This command creates:
 	RunE: runInit,
 }
 
-func runInit(cmd *cobra.Command, args []string) error {
+func runInit(_ *cobra.Command, _ []string) error {
 	if verbose {
 		fmt.Printf("Initializing ConfigSync in %s\n", configDir)
 	}

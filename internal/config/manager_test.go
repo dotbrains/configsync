@@ -27,7 +27,7 @@ func TestManagerWithRealFiles(t *testing.T) {
 	// Create a temporary directory for testing
 	tempDir := t.TempDir()
 	manager := NewManager(tempDir)
-	
+
 	// Create config directory
 	err := os.MkdirAll(manager.GetConfigDir(), 0755)
 	if err != nil {
@@ -103,7 +103,7 @@ func TestManagerWithRealFiles(t *testing.T) {
 func TestManagerSaveLoadCycle(t *testing.T) {
 	tempDir := t.TempDir()
 	manager := NewManager(tempDir)
-	
+
 	// Create config directory
 	err := os.MkdirAll(manager.GetConfigDir(), 0755)
 	if err != nil {
@@ -245,7 +245,7 @@ func TestManagerSaveLoadCycle(t *testing.T) {
 func TestManagerLoadError(t *testing.T) {
 	tempDir := t.TempDir()
 	manager := NewManager(tempDir)
-	
+
 	// Create config directory
 	err := os.MkdirAll(manager.GetConfigDir(), 0755)
 	if err != nil {
@@ -289,7 +289,7 @@ func TestManagerSaveError(t *testing.T) {
 	}
 
 	// Clean up by changing permissions
-	os.Chmod(configDir, 0755)
+	_ = os.Chmod(configDir, 0755)
 }
 
 func TestManagerMethods(t *testing.T) {
@@ -443,7 +443,7 @@ func TestManagerMethods(t *testing.T) {
 func TestManagerBackupIntegration(t *testing.T) {
 	tempDir := t.TempDir()
 	manager := NewManager(tempDir)
-	
+
 	// Create config directory
 	err := os.MkdirAll(manager.GetConfigDir(), 0755)
 	if err != nil {
@@ -506,7 +506,7 @@ func TestPathTypeConstants(t *testing.T) {
 func BenchmarkManagerSaveLoad(b *testing.B) {
 	tempDir := b.TempDir()
 	manager := NewManager(tempDir)
-	
+
 	// Create config directory
 	err := os.MkdirAll(manager.GetConfigDir(), 0755)
 	if err != nil {

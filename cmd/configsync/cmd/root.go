@@ -1,3 +1,4 @@
+// Package cmd provides the command-line interface commands for ConfigSync.
 package cmd
 
 import (

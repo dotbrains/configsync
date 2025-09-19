@@ -221,7 +221,7 @@ Examples:
 	RunE: runRestore,
 }
 
-func runRestore(cmd *cobra.Command, args []string) error {
+func runRestore(_ *cobra.Command, args []string) error {
 	// Create configuration manager
 	manager := config.NewManager(homeDir)
 
@@ -333,7 +333,7 @@ Examples:
 	RunE: runExport,
 }
 
-func runExport(cmd *cobra.Command, args []string) error {
+func runExport(_ *cobra.Command, _ []string) error {
 	// Create configuration manager
 	manager := config.NewManager(homeDir)
 
@@ -392,7 +392,7 @@ Examples:
 	Args: cobra.ExactArgs(1),
 }
 
-func runImport(cmd *cobra.Command, args []string) error {
+func runImport(_ *cobra.Command, args []string) error {
 	bundlePath := args[0]
 
 	// Create configuration manager
@@ -449,7 +449,7 @@ Examples:
 	RunE: runDeploy,
 }
 
-func runDeploy(cmd *cobra.Command, args []string) error {
+func runDeploy(_ *cobra.Command, _ []string) error {
 	// Create configuration manager
 	manager := config.NewManager(homeDir)
 

@@ -73,11 +73,11 @@ func TestExportBundle(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize config manager: %v", err)
 	}
-	
+
 	// Create test app configs
 	app1 := config.NewAppConfig("testapp1", "Test App 1")
 	app1.AddPath("/test/source1.conf", "test1.conf", config.PathTypeFile, false)
-	
+
 	app2 := config.NewAppConfig("testapp2", "Test App 2")
 	app2.AddPath("/test/source2.conf", "test2.conf", config.PathTypeFile, false)
 
@@ -146,7 +146,7 @@ func TestExportBundleSpecificApps(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to initialize config manager: %v", err)
 	}
-	
+
 	app1 := config.NewAppConfig("testapp1", "Test App 1")
 	app1.AddPath("/test/source1.conf", "test1.conf", config.PathTypeFile, false)
 
@@ -325,7 +325,7 @@ func TestImportBundleNonExistent(t *testing.T) {
 	// Test importing non-existent bundle
 	bundlePath := filepath.Join(tempDir, "nonexistent-bundle.tar.gz")
 	importDir := filepath.Join(tempDir, "import")
-	
+
 	_, err := manager.ImportBundle(bundlePath, importDir)
 	if err == nil {
 		t.Error("Expected error for non-existent bundle")
@@ -390,10 +390,10 @@ func TestDeployBundle(t *testing.T) {
 	}
 
 	// Clear existing configuration to test deployment
-	os.RemoveAll(configDir)
-	os.MkdirAll(configDir, 0755)
-	os.RemoveAll(storeDir)
-	os.MkdirAll(storeDir, 0755)
+	_ = os.RemoveAll(configDir)
+	_ = os.MkdirAll(configDir, 0755)
+	_ = os.RemoveAll(storeDir)
+	_ = os.MkdirAll(storeDir, 0755)
 
 	newConfigManager := config.NewManager(homeDir)
 	err = newConfigManager.Initialize()
@@ -538,7 +538,7 @@ func TestDetectConflicts(t *testing.T) {
 	}
 
 	conflicts := manager.detectConflicts(bundle, currentCfg)
-	
+
 	if len(conflicts) == 0 {
 		t.Error("Expected conflicts to be detected")
 	}
@@ -603,16 +603,16 @@ func TestGetUserInfo(t *testing.T) {
 
 	// Test with USER env var set
 	originalUser := os.Getenv("USER")
-	defer os.Setenv("USER", originalUser)
+	defer func() { _ = os.Setenv("USER", originalUser) }()
 
-	os.Setenv("USER", "testuser")
+	_ = os.Setenv("USER", "testuser")
 	userInfo := manager.getUserInfo()
 	if userInfo != "testuser" {
 		t.Errorf("Expected 'testuser', got '%s'", userInfo)
 	}
 
 	// Test with USER env var unset
-	os.Unsetenv("USER")
+	_ = os.Unsetenv("USER")
 	userInfo = manager.getUserInfo()
 	if userInfo != "unknown" {
 		t.Errorf("Expected 'unknown', got '%s'", userInfo)
@@ -727,7 +727,7 @@ func TestCopyDir(t *testing.T) {
 	// Create files in source directory
 	file1 := filepath.Join(srcDir, "file1.txt")
 	file2 := filepath.Join(srcDir, "subdir", "file2.txt")
-	
+
 	err = os.WriteFile(file1, []byte("content1"), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create file1: %v", err)

@@ -286,6 +286,7 @@ func (m *Manager) DeployBundle(bundle *config.DeploymentBundle, bundleDir string
 
 // Helper methods and types
 
+// Conflict represents a deployment conflict between source and target files
 type Conflict struct {
 	AppName string
 	Message string
@@ -381,9 +382,8 @@ func (m *Manager) copyPath(src, dst string) error {
 
 	if srcInfo.IsDir() {
 		return m.copyDir(src, dst)
-	} else {
-		return m.copyFile(src, dst)
 	}
+	return m.copyFile(src, dst)
 }
 
 func (m *Manager) copyFile(src, dst string) error {
@@ -401,7 +401,7 @@ func (m *Manager) copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
 		return err
@@ -429,9 +429,8 @@ func (m *Manager) copyDir(src, dst string) error {
 
 		if info.IsDir() {
 			return os.MkdirAll(dstPath, info.Mode())
-		} else {
-			return m.copyFile(path, dstPath)
 		}
+		return m.copyFile(path, dstPath)
 	})
 }
 
@@ -491,13 +490,13 @@ func (m *Manager) createTarGz(sourceDir, targetPath string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	gzWriter := gzip.NewWriter(file)
-	defer gzWriter.Close()
+	defer func() { _ = gzWriter.Close() }()
 
 	tarWriter := tar.NewWriter(gzWriter)
-	defer tarWriter.Close()
+	defer func() { _ = tarWriter.Close() }()
 
 	return filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -530,7 +529,7 @@ func (m *Manager) createTarGz(sourceDir, targetPath string) error {
 			if err != nil {
 				return err
 			}
-			defer file.Close()
+			defer func() { _ = file.Close() }()
 
 			_, err = io.Copy(tarWriter, file)
 			return err
@@ -545,13 +544,13 @@ func (m *Manager) extractTarGz(sourcePath, targetDir string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	gzReader, err := gzip.NewReader(file)
 	if err != nil {
 		return err
 	}
-	defer gzReader.Close()
+	defer func() { _ = gzReader.Close() }()
 
 	tarReader := tar.NewReader(gzReader)
 
@@ -587,7 +586,7 @@ func (m *Manager) extractTarGz(sourcePath, targetDir string) error {
 			}
 
 			_, err = io.Copy(file, tarReader)
-			file.Close()
+			_ = file.Close()
 			if err != nil {
 				return err
 			}

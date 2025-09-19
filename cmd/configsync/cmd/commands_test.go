@@ -11,7 +11,7 @@ import (
 )
 
 // Helper function for min
-func min(a, b int) int {
+func minInt(a, b int) int {
 	if a < b {
 		return a
 	}
@@ -211,13 +211,13 @@ func TestInitConfig(t *testing.T) {
 	defer func() {
 		homeDir = originalHome
 		configDir = originalConfigDir
-		os.Setenv("HOME", originalHomeEnv)
+		_ = os.Setenv("HOME", originalHomeEnv)
 	}()
 
 	// Test with empty homeDir (should use environment)
 	homeDir = ""
 	testHome := "/test/home/dir"
-	os.Setenv("HOME", testHome)
+	_ = os.Setenv("HOME", testHome)
 
 	initConfig()
 
@@ -392,7 +392,7 @@ func TestVersionOutput(t *testing.T) {
 
 	// Version output might come in different formats
 	if len(output) > 0 && !strings.Contains(output, "1.0.0") && !strings.Contains(output, "version for configsync") {
-		t.Errorf("Expected version output to contain version info, but got: %s", output[:min(200, len(output))])
+		t.Errorf("Expected version output to contain version info, but got: %s", output[:minInt(200, len(output))])
 	}
 }
 
@@ -428,6 +428,9 @@ func TestCobraInit(t *testing.T) {
 		// This is OK - initialization happens via cobra.OnInitialize
 		t.Log("Root command uses cobra.OnInitialize for setup")
 	}
+
+	// Initialize the configuration to test global variables
+	initConfig()
 
 	// Test that global variables are accessible
 	if homeDir == "" {

@@ -24,7 +24,7 @@ Examples:
 	RunE: runSync,
 }
 
-func runSync(cmd *cobra.Command, args []string) error {
+func runSync(_ *cobra.Command, args []string) error {
 	// Create configuration manager
 	manager := config.NewManager(homeDir)
 

@@ -51,7 +51,7 @@ func init() {
 	discoverCmd.Flags().StringVar(&discoverFilter, "filter", "", "comma-separated list of app names to filter results")
 }
 
-func runDiscover(cmd *cobra.Command, args []string) error {
+func runDiscover(_ *cobra.Command, _ []string) error {
 	// Initialize detector
 	detector := apps.NewAppDetector(homeDir)
 
@@ -116,8 +116,12 @@ func printDiscoveredApps(detectedConfigs []*config.AppConfig, installedApps []ap
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	fmt.Fprintln(w, "NAME\tDISPLAY NAME\tBUNDLE ID\tPATHS FOUND\tSTATUS")
-	fmt.Fprintln(w, "----\t------------\t---------\t-----------\t------")
+	if _, err := fmt.Fprintln(w, "NAME\tDISPLAY NAME\tBUNDLE ID\tPATHS FOUND\tSTATUS"); err != nil {
+		return err
+	}
+	if _, err := fmt.Fprintln(w, "----\t------------\t---------\t-----------\t------"); err != nil {
+		return err
+	}
 
 	for _, appConfig := range detectedConfigs {
 		status := "Unknown"
@@ -129,21 +133,27 @@ func printDiscoveredApps(detectedConfigs []*config.AppConfig, installedApps []ap
 			}
 		}
 
-		fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%s\n",
+		if _, err := fmt.Fprintf(w, "%s\t%s\t%s\t%d\t%s\n",
 			appConfig.Name,
 			appConfig.DisplayName,
 			appConfig.BundleID,
 			len(appConfig.Paths),
-			status)
+			status); err != nil {
+			return err
+		}
 
 		if verbose {
 			for _, path := range appConfig.Paths {
-				fmt.Fprintf(w, "\t↳ %s\t%s\t%s\t\n", path.Source, path.Type, "")
+				if _, err := fmt.Fprintf(w, "\t↳ %s\t%s\t%s\t\n", path.Source, path.Type, ""); err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	w.Flush()
+	if err := w.Flush(); err != nil {
+		return err
+	}
 	return nil
 }
 

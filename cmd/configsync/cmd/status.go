@@ -27,7 +27,7 @@ including sync status, last sync time, and any issues.`,
 	RunE: runStatus,
 }
 
-func runStatus(cmd *cobra.Command, args []string) error {
+func runStatus(_ *cobra.Command, _ []string) error {
 	// Create configuration manager
 	manager := config.NewManager(homeDir)
 
@@ -142,7 +142,7 @@ func getPathStatus(sourcePath, storePath string) string {
 	return statusNotSynced
 }
 
-func expandPath(path, homeDir string) string {
+func expandPath(path, _ string) string {
 	if strings.HasPrefix(path, "~/") {
 		return path
 	}

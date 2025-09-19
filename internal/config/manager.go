@@ -10,11 +10,16 @@ import (
 )
 
 const (
-	DefaultConfigDir  = ".configsync"
+	// DefaultConfigDir is the default directory name for ConfigSync configuration
+	DefaultConfigDir = ".configsync"
+	// DefaultConfigFile is the default filename for ConfigSync configuration
 	DefaultConfigFile = "config.yaml"
-	DefaultStoreDir   = "store"
-	DefaultBackupDir  = "backups"
-	DefaultLogDir     = "logs"
+	// DefaultStoreDir is the default directory name for ConfigSync store
+	DefaultStoreDir = "store"
+	// DefaultBackupDir is the default directory name for ConfigSync backups
+	DefaultBackupDir = "backups"
+	// DefaultLogDir is the default directory name for ConfigSync logs
+	DefaultLogDir = "logs"
 )
 
 // Manager handles configuration file operations
@@ -28,7 +33,7 @@ type Manager struct {
 func NewManager(homeDir string) *Manager {
 	configDir := filepath.Join(homeDir, DefaultConfigDir)
 	configPath := filepath.Join(configDir, DefaultConfigFile)
-	
+
 	return &Manager{
 		configDir:  configDir,
 		configPath: configPath,

@@ -1,3 +1,4 @@
+// Package backup provides functionality for creating, managing, and validating configuration backups.
 package backup
 
 import (
@@ -34,7 +35,7 @@ func NewManager(backupDir, homeDir string, verbose bool) *Manager {
 // BackupPath creates a backup of a configuration path before symlinking
 func (m *Manager) BackupPath(appName string, path *config.ConfigPath) error {
 	sourcePath := m.expandPath(path.Source)
-	
+
 	// Check if source exists
 	if !m.pathExists(sourcePath) {
 		if m.verbose {
@@ -150,7 +151,7 @@ func (m *Manager) RestorePath(appName string, path *config.ConfigPath) error {
 // ListBackups returns information about all backups for an application
 func (m *Manager) ListBackups(appName string) ([]*config.BackupInfo, error) {
 	backupInfoDir := filepath.Join(m.backupDir, "info", appName)
-	
+
 	if !m.pathExists(backupInfoDir) {
 		return []*config.BackupInfo{}, nil
 	}
@@ -194,7 +195,7 @@ func (m *Manager) CleanupBackups(appName string, keepDays int) error {
 	for _, backup := range backups {
 		if backup.CreatedAt.Before(cutoff) {
 			if m.verbose {
-				fmt.Printf("Removing old backup: %s (created %s)\n", 
+				fmt.Printf("Removing old backup: %s (created %s)\n",
 					backup.BackupPath, backup.CreatedAt.Format(time.RFC3339))
 			}
 
@@ -248,7 +249,7 @@ func (m *Manager) ValidateBackup(backupInfo *config.BackupInfo) error {
 		}
 
 		if currentChecksum != backupInfo.Checksum {
-			return fmt.Errorf("backup checksum mismatch: expected %s, got %s", 
+			return fmt.Errorf("backup checksum mismatch: expected %s, got %s",
 				backupInfo.Checksum, currentChecksum)
 		}
 	}
@@ -282,7 +283,7 @@ func (m *Manager) getBackupPath(appName, destination string) string {
 	// Create a safe filename from the destination path
 	safeName := strings.ReplaceAll(destination, "/", "_")
 	safeName = strings.ReplaceAll(safeName, " ", "_")
-	
+
 	return filepath.Join(m.backupDir, "files", appName, safeName)
 }
 
@@ -290,7 +291,7 @@ func (m *Manager) getBackupInfoPath(appName, originalPath string) string {
 	// Create a safe filename from the original path
 	safeName := strings.ReplaceAll(originalPath, "/", "_")
 	safeName = strings.ReplaceAll(safeName, " ", "_")
-	
+
 	return filepath.Join(m.backupDir, "info", appName, safeName+".yaml")
 }
 
@@ -302,9 +303,8 @@ func (m *Manager) copyPath(src, dst string) error {
 
 	if srcInfo.IsDir() {
 		return m.copyDir(src, dst)
-	} else {
-		return m.copyFile(src, dst)
 	}
+	return m.copyFile(src, dst)
 }
 
 func (m *Manager) copyFile(src, dst string) error {
@@ -312,13 +312,13 @@ func (m *Manager) copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
 		return err
@@ -346,9 +346,8 @@ func (m *Manager) copyDir(src, dst string) error {
 
 		if info.IsDir() {
 			return os.MkdirAll(dstPath, info.Mode())
-		} else {
-			return m.copyFile(path, dstPath)
 		}
+		return m.copyFile(path, dstPath)
 	})
 }
 
@@ -357,7 +356,7 @@ func (m *Manager) calculateChecksum(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
@@ -393,7 +392,7 @@ func (m *Manager) calculateSize(path string) (int64, error) {
 
 func (m *Manager) saveBackupInfo(info *config.BackupInfo) error {
 	infoPath := m.getBackupInfoPath(info.AppName, info.OriginalPath)
-	
+
 	// Create info directory
 	infoDir := filepath.Dir(infoPath)
 	if err := os.MkdirAll(infoDir, 0755); err != nil {

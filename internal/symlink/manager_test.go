@@ -9,6 +9,8 @@ import (
 	"github.com/dotbrains/configsync/internal/config"
 )
 
+const testConfiguration = "test configuration"
+
 func TestNewManager(t *testing.T) {
 	homeDir := "/test/home"
 	storeDir := "/test/store"
@@ -53,7 +55,7 @@ func TestSyncAppEnabled(t *testing.T) {
 
 	// Create source file
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := "test configuration"
+	sourceContent := testConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -122,7 +124,7 @@ func TestSyncAppDisabled(t *testing.T) {
 
 	// Create source file
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := "test configuration"
+	sourceContent := testConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -161,7 +163,7 @@ func TestSyncAppDryRun(t *testing.T) {
 
 	// Create source file
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := "test configuration"
+	sourceContent := testConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -616,7 +618,7 @@ func TestSyncAppErrors(t *testing.T) {
 
 	// Create app config with multiple paths, some will fail
 	appConfig := config.NewAppConfig("testapp", "Test Application")
-	
+
 	// Add a valid path
 	validFile := filepath.Join(tempDir, "valid.conf")
 	err := os.WriteFile(validFile, []byte("content"), 0644)
@@ -624,7 +626,7 @@ func TestSyncAppErrors(t *testing.T) {
 		t.Fatalf("Failed to create valid file: %v", err)
 	}
 	appConfig.AddPath(validFile, "valid.conf", config.PathTypeFile, false)
-	
+
 	// Add an invalid required path
 	invalidFile := filepath.Join(tempDir, "invalid.conf")
 	appConfig.AddPath(invalidFile, "invalid.conf", config.PathTypeFile, true) // required=true
@@ -652,7 +654,7 @@ func BenchmarkSyncFile(b *testing.B) {
 
 	// Create test file
 	testContent := strings.Repeat("benchmark content ", 1000)
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		// Create unique files for each benchmark iteration

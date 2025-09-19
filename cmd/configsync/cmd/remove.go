@@ -21,7 +21,7 @@ Examples:
 	RunE: runRemove,
 }
 
-func runRemove(cmd *cobra.Command, args []string) error {
+func runRemove(_ *cobra.Command, args []string) error {
 	// Require at least one app name
 	if len(args) == 0 {
 		return fmt.Errorf("at least one application name is required")

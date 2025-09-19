@@ -30,7 +30,7 @@ Examples:
 	RunE: runAdd,
 }
 
-func runAdd(cmd *cobra.Command, args []string) error {
+func runAdd(_ *cobra.Command, args []string) error {
 	// Handle --list-supported flag
 	if listSupported {
 		return showSupportedApps()

@@ -468,7 +468,7 @@ sequenceDiagram
     participant U2 as User (Mac 2)
     participant CS2 as ConfigSync (Mac 2)
     participant Apps as Applications (Mac 2)
-    
+
     Note over U1, CS1: Source System - Export Phase
     U1->>CS1: configsync export [--apps vscode,git]
     CS1->>CS1: 🔍 Validate configurations
@@ -478,15 +478,15 @@ sequenceDiagram
     CS1->>CS1: 🗜️ Create temp/export-staging/
     CS1->>Bundle: Create .tar.gz bundle
     CS1-->>U1: ✅ Export complete with validation
-    
+
     Note over Bundle: Secure Transfer
     Bundle-->>U2: 🔐 Copy bundle file
-    
+
     Note over U2, Apps: Target System - Import & Deploy
     U2->>CS2: configsync init
     CS2->>CS2: 🏗️ Create ~/.configsync/ structure
     CS2->>CS2: 📁 Initialize logs/, temp/, backups/
-    
+
     U2->>CS2: configsync import bundle.tar.gz
     CS2->>Bundle: 📥 Extract to temp/import-staging/
     CS2->>CS2: ✅ Validate bundle integrity
@@ -498,7 +498,7 @@ sequenceDiagram
         CS2->>CS2: 📋 Update config.yaml
         CS2-->>U2: ✅ Import successful
     end
-    
+
     U2->>CS2: configsync deploy [--force]
     CS2->>CS2: 🔍 Check target application paths
     CS2->>CS2: 📊 Detect installation differences
@@ -507,18 +507,18 @@ sequenceDiagram
     CS2->>Apps: 🔗 Create validated symlinks
     CS2->>CS2: 📝 Update sync status & logs
     CS2->>CS2: 🧹 Clean up temp/import-staging/
-    
+
     CS2-->>U2: ✅ Deployment complete with integrity checks
-    
+
     rect rgb(240, 248, 255)
         Note over CS1: Enhanced Export:<br/>• Selective app filtering<br/>• Checksum validation<br/>• Staged preparation
     end
-    
-    rect rgb(255, 248, 240) 
+
+    rect rgb(255, 248, 240)
         Note over Bundle: Security Features:<br/>• Bundle integrity checks<br/>• Metadata validation<br/>• Conflict detection
     end
-    
-    rect rgb(248, 255, 248) 
+
+    rect rgb(248, 255, 248)
         Note over CS2: Safe Deployment:<br/>• Automatic backups<br/>• Symlink validation<br/>• Rollback capability<br/>• Operation logging
     end
 ```
@@ -637,13 +637,13 @@ ConfigSync maintains high code quality with comprehensive test coverage:
 
 - **75%+ Test Coverage**: Extensive test suites across all core modules
 - **Integration Tests**: Full workflow testing including CLI commands
-- **Unit Tests**: Individual component testing with mocked dependencies 
+- **Unit Tests**: Individual component testing with mocked dependencies
 - **Benchmark Tests**: Performance testing for critical operations
 - **Cross-platform Testing**: Verified on Intel and Apple Silicon Macs
 
 ### Test Coverage by Module:
 - **Backup System**: 75.3% coverage
-- **Configuration Manager**: 74.7% coverage  
+- **Configuration Manager**: 74.7% coverage
 - **Deployment Engine**: 77.7% coverage
 - **Symlink Manager**: 74.5% coverage
 - **Utilities**: 100% coverage
@@ -686,6 +686,59 @@ make build
 make lint
 ```
 
+### Code Quality & Pre-commit Hooks
+
+ConfigSync uses automated code quality tools to maintain high standards. We use pre-commit hooks to catch issues early in the development process.
+
+#### Setting up Pre-commit Hooks
+
+```bash
+# Install pre-commit (macOS)
+brew install pre-commit
+
+# Install the pre-commit hooks
+pre-commit install
+
+# Install goimports for import formatting
+go install golang.org/x/tools/cmd/goimports@latest
+```
+
+#### Pre-commit Hook Features
+
+The pre-commit configuration automatically:
+- **Formats code**: Runs `gofmt` and `goimports` to ensure consistent formatting
+- **Cleans whitespace**: Removes trailing whitespace and ensures files end with newlines
+- **Validates YAML**: Checks YAML files for syntax errors
+- **Runs linting**: Performs golangci-lint checks (non-blocking for development flow)
+- **Prevents large files**: Blocks accidentally committed large files
+- **Checks merge conflicts**: Prevents committing files with merge conflict markers
+
+#### Manual Hook Execution
+
+```bash
+# Run pre-commit hooks on all files
+pre-commit run --all-files
+
+# Run pre-commit hooks on staged files only
+pre-commit run
+
+# Update hook versions
+pre-commit autoupdate
+```
+
+#### Linting
+
+```bash
+# Run golangci-lint manually
+golangci-lint run --timeout=5m
+
+# Run with specific linters only
+golangci-lint run --enable=errcheck,govet,gofmt
+
+# Run go vet (always passes)
+go vet ./...
+```
+
 ### Running Tests
 
 ```bash
@@ -697,6 +750,9 @@ make test-coverage
 
 # Run specific package tests
 go test ./internal/config -v
+
+# Run tests with race detection
+go test -race ./...
 ```
 
 ### Adding Support for New Applications

@@ -1,3 +1,4 @@
+// Package config provides comprehensive tests for configuration management functionality.
 package config
 
 import (

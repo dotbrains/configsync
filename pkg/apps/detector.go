@@ -294,25 +294,25 @@ func (d *AppDetector) generateAppKey(app InstalledApp) string {
 }
 
 // shouldReplaceApp determines if the new app should replace the existing one
-func (d *AppDetector) shouldReplaceApp(existing, new InstalledApp) bool {
+func (d *AppDetector) shouldReplaceApp(existing, newApp InstalledApp) bool {
 	// Prefer apps with bundle IDs
-	if existing.BundleID == "" && new.BundleID != "" {
+	if existing.BundleID == "" && newApp.BundleID != "" {
 		return true
 	}
-	if existing.BundleID != "" && new.BundleID == "" {
+	if existing.BundleID != "" && newApp.BundleID == "" {
 		return false
 	}
 
 	// Prefer apps with version information
-	if existing.Version == "" && new.Version != "" {
+	if existing.Version == "" && newApp.Version != "" {
 		return true
 	}
-	if existing.Version != "" && new.Version == "" {
+	if existing.Version != "" && newApp.Version == "" {
 		return false
 	}
 
 	// Prefer apps in /Applications over other locations
-	if !strings.HasPrefix(existing.Path, "/Applications/") && strings.HasPrefix(new.Path, "/Applications/") {
+	if !strings.HasPrefix(existing.Path, "/Applications/") && strings.HasPrefix(newApp.Path, "/Applications/") {
 		return true
 	}
 

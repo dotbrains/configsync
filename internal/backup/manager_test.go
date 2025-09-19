@@ -203,7 +203,7 @@ func TestBackupPathSymlink(t *testing.T) {
 	// Create a test file and symlink to it
 	testFile := filepath.Join(tempDir, "target.conf")
 	testSymlink := filepath.Join(tempDir, "link.conf")
-	
+
 	err := os.WriteFile(testFile, []byte("content"), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)

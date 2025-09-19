@@ -22,7 +22,7 @@ func TestMainFunction(t *testing.T) {
 	if err := buildCmd.Run(); err != nil {
 		t.Skipf("Cannot build binary for testing: %v", err)
 	}
-	defer os.Remove("/tmp/configsync-test")
+	defer func() { _ = os.Remove("/tmp/configsync-test") }()
 
 	tests := []struct {
 		name           string
@@ -111,10 +111,10 @@ func TestMainWithEnvironmentVariables(t *testing.T) {
 
 	// Test with different HOME directory
 	originalHome := os.Getenv("HOME")
-	defer os.Setenv("HOME", originalHome)
+	defer func() { _ = os.Setenv("HOME", originalHome) }()
 
 	tempDir := t.TempDir()
-	os.Setenv("HOME", tempDir)
+	_ = os.Setenv("HOME", tempDir)
 
 	// Build the binary for testing
 	buildCmd := exec.Command("go", "build", "-o", "/tmp/configsync-env-test", ".")
@@ -122,7 +122,7 @@ func TestMainWithEnvironmentVariables(t *testing.T) {
 	if err := buildCmd.Run(); err != nil {
 		t.Skipf("Cannot build binary for testing: %v", err)
 	}
-	defer os.Remove("/tmp/configsync-env-test")
+	defer func() { _ = os.Remove("/tmp/configsync-env-test") }()
 
 	// Test init command with custom home
 	cmd := exec.Command("/tmp/configsync-env-test", "init", "--dry-run")
@@ -153,7 +153,7 @@ func TestCLIArgumentParsing(t *testing.T) {
 	if err := buildCmd.Run(); err != nil {
 		t.Skipf("Cannot build binary for testing: %v", err)
 	}
-	defer os.Remove("/tmp/configsync-args-test")
+	defer func() { _ = os.Remove("/tmp/configsync-args-test") }()
 
 	// Test various flag combinations
 	tests := []struct {

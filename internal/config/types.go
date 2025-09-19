@@ -6,15 +6,15 @@ import (
 
 // Config represents the main configuration for ConfigSync
 type Config struct {
-	Version     string                 `yaml:"version"`
-	StorePath   string                 `yaml:"store_path"`
-	BackupPath  string                 `yaml:"backup_path"`
-	LogPath     string                 `yaml:"log_path"`
-	Apps        map[string]*AppConfig  `yaml:"apps"`
-	Settings    *Settings              `yaml:"settings"`
-	LastSync    time.Time              `yaml:"last_sync,omitempty"`
-	CreatedAt   time.Time              `yaml:"created_at"`
-	UpdatedAt   time.Time              `yaml:"updated_at"`
+	Version    string                `yaml:"version"`
+	StorePath  string                `yaml:"store_path"`
+	BackupPath string                `yaml:"backup_path"`
+	LogPath    string                `yaml:"log_path"`
+	Apps       map[string]*AppConfig `yaml:"apps"`
+	Settings   *Settings             `yaml:"settings"`
+	LastSync   time.Time             `yaml:"last_sync,omitempty"`
+	CreatedAt  time.Time             `yaml:"created_at"`
+	UpdatedAt  time.Time             `yaml:"updated_at"`
 }
 
 // AppConfig represents configuration for a single application
@@ -30,14 +30,14 @@ type AppConfig struct {
 	LastSynced   time.Time         `yaml:"last_synced,omitempty"`
 }
 
-// ConfigPath represents a path that should be managed for an application
+// ConfigPath represents a configuration file or directory path within an application config
 type ConfigPath struct {
-	Source      string    `yaml:"source"`       // Original path (e.g., ~/Library/Preferences/com.app.plist)
-	Destination string    `yaml:"destination"`  // Path in central store
-	Type        PathType  `yaml:"type"`         // file, directory, or glob
-	Required    bool      `yaml:"required"`     // Whether this path must exist
-	BackedUp    bool      `yaml:"backed_up"`    // Whether original was backed up
-	Synced      bool      `yaml:"synced"`       // Whether currently synced
+	Source      string    `yaml:"source"`      // Original path (e.g., ~/Library/Preferences/com.app.plist)
+	Destination string    `yaml:"destination"` // Path in central store
+	Type        PathType  `yaml:"type"`        // file, directory, or glob
+	Required    bool      `yaml:"required"`    // Whether this path must exist
+	BackedUp    bool      `yaml:"backed_up"`   // Whether original was backed up
+	Synced      bool      `yaml:"synced"`      // Whether currently synced
 	SyncedAt    time.Time `yaml:"synced_at,omitempty"`
 }
 
@@ -45,19 +45,22 @@ type ConfigPath struct {
 type PathType string
 
 const (
-	PathTypeFile      PathType = "file"
+	// PathTypeFile represents a configuration file
+	PathTypeFile PathType = "file"
+	// PathTypeDirectory represents a configuration directory
 	PathTypeDirectory PathType = "directory"
-	PathTypeGlob      PathType = "glob"
+	// PathTypeGlob represents a configuration glob pattern
+	PathTypeGlob PathType = "glob"
 )
 
 // Settings represents global settings for ConfigSync
 type Settings struct {
-	AutoBackup      bool     `yaml:"auto_backup"`
-	DryRun          bool     `yaml:"dry_run"`
-	VerboseLogging  bool     `yaml:"verbose_logging"`
-	SymlinkMode     string   `yaml:"symlink_mode"` // "soft" or "hard"
-	ExcludePatterns []string `yaml:"exclude_patterns"`
-	ConflictStrategy string  `yaml:"conflict_strategy"` // "ask", "overwrite", "skip"
+	AutoBackup       bool     `yaml:"auto_backup"`
+	DryRun           bool     `yaml:"dry_run"`
+	VerboseLogging   bool     `yaml:"verbose_logging"`
+	SymlinkMode      string   `yaml:"symlink_mode"` // "soft" or "hard"
+	ExcludePatterns  []string `yaml:"exclude_patterns"`
+	ConflictStrategy string   `yaml:"conflict_strategy"` // "ask", "overwrite", "skip"
 }
 
 // SyncStatus represents the status of configuration synchronization
@@ -70,9 +73,9 @@ type SyncStatus struct {
 
 // BackupInfo represents information about a backup
 type BackupInfo struct {
-	AppName     string    `yaml:"app_name"`
-	OriginalPath string   `yaml:"original_path"`
-	BackupPath   string   `yaml:"backup_path"`
+	AppName      string    `yaml:"app_name"`
+	OriginalPath string    `yaml:"original_path"`
+	BackupPath   string    `yaml:"backup_path"`
 	CreatedAt    time.Time `yaml:"created_at"`
 	Size         int64     `yaml:"size"`
 	Checksum     string    `yaml:"checksum,omitempty"`

@@ -1,3 +1,4 @@
+// Package symlink provides functionality for managing symlinks between configuration files and central storage.
 package symlink
 
 import (
@@ -48,12 +49,12 @@ func (m *Manager) SyncApp(appConfig *config.AppConfig) error {
 	var errors []string
 	for i := range appConfig.Paths {
 		path := &appConfig.Paths[i]
-		
+
 		if err := m.syncPath(path); err != nil {
 			errors = append(errors, fmt.Sprintf("%s: %v", path.Source, err))
 			continue
 		}
-		
+
 		if !m.dryRun {
 			path.MarkSynced()
 		}
@@ -75,7 +76,7 @@ func (m *Manager) UnsyncApp(appConfig *config.AppConfig) error {
 	var errors []string
 	for i := range appConfig.Paths {
 		path := &appConfig.Paths[i]
-		
+
 		if err := m.unsyncPath(path); err != nil {
 			errors = append(errors, fmt.Sprintf("%s: %v", path.Source, err))
 			continue
@@ -139,7 +140,7 @@ func (m *Manager) syncPath(path *config.ConfigPath) error {
 					}
 				}
 			}
-			
+
 			// Move existing file/directory to store
 			if m.verbose {
 				fmt.Printf("    Moving to store: %s -> %s\n", sourcePath, storePath)
@@ -307,9 +308,8 @@ func (m *Manager) copyFromStore(storePath, sourcePath string) error {
 
 	if info.IsDir() {
 		return m.copyDir(storePath, sourcePath)
-	} else {
-		return m.copyFile(storePath, sourcePath)
 	}
+	return m.copyFile(storePath, sourcePath)
 }
 
 func (m *Manager) copyFile(src, dst string) error {
@@ -317,13 +317,13 @@ func (m *Manager) copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer sourceFile.Close()
+	defer func() { _ = sourceFile.Close() }()
 
 	destFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer destFile.Close()
+	defer func() { _ = destFile.Close() }()
 
 	// Copy file contents
 	if _, err := destFile.ReadFrom(sourceFile); err != nil {
@@ -353,8 +353,7 @@ func (m *Manager) copyDir(src, dst string) error {
 
 		if info.IsDir() {
 			return os.MkdirAll(destPath, info.Mode())
-		} else {
-			return m.copyFile(path, destPath)
 		}
+		return m.copyFile(path, destPath)
 	})
 }
