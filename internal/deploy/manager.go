@@ -14,6 +14,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/dotbrains/configsync/internal/config"
+	"github.com/dotbrains/configsync/internal/constants"
 )
 
 // Manager handles deployment operations for configuration bundles
@@ -46,55 +47,18 @@ func (m *Manager) ExportBundle(bundlePath string, apps []string, configManager *
 		return fmt.Errorf("failed to load configuration: %w", err)
 	}
 
-	// Create deployment bundle
-	bundle := &config.DeploymentBundle{
-		Version:   "1.0",
-		CreatedAt: time.Now(),
-		CreatedBy: m.getUserInfo(),
-		Apps:      make(map[string]*config.AppConfig),
-		Metadata:  make(map[string]string),
-	}
-
-	// Add system information to metadata
-	bundle.Metadata["platform"] = "darwin"
-	bundle.Metadata["created_on"] = m.getSystemInfo()
-
-	// Select apps to include
-	if len(apps) == 0 {
-		// Include all apps
-		bundle.Apps = cfg.Apps
-		if m.verbose {
-			fmt.Printf("Including all %d configured applications\n", len(cfg.Apps))
-		}
-	} else {
-		// Include specified apps
-		for _, appName := range apps {
-			if appConfig, exists := cfg.Apps[appName]; exists {
-				bundle.Apps[appName] = appConfig
-				if m.verbose {
-					fmt.Printf("Including application: %s\n", appConfig.DisplayName)
-				}
-			} else {
-				return fmt.Errorf("application not found: %s", appName)
-			}
-		}
-	}
-
-	if len(bundle.Apps) == 0 {
-		return fmt.Errorf("no applications to export")
-	}
-
-	// Create temporary directory for bundle contents
-	tempDir, err := os.MkdirTemp("", "configsync-bundle-*")
+	// Create and populate bundle metadata
+	bundle, err := m.createDeploymentBundle(cfg, apps)
 	if err != nil {
-		return fmt.Errorf("failed to create temp directory: %w", err)
+		return err
 	}
-	defer func() {
-		if err := os.RemoveAll(tempDir); err != nil {
-			// Log error but don't fail the operation
-			fmt.Printf("Warning: failed to clean up temporary directory: %v\n", err)
-		}
-	}()
+
+	// Prepare bundle contents in temporary directory
+	tempDir, cleanup, err := m.prepareBundleDirectory()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 
 	// Save bundle metadata
 	bundleFile := filepath.Join(tempDir, "bundle.yaml")
@@ -103,42 +67,8 @@ func (m *Manager) ExportBundle(bundlePath string, apps []string, configManager *
 	}
 
 	// Copy configuration files
-	filesDir := filepath.Join(tempDir, "files")
-	if err := os.MkdirAll(filesDir, 0755); err != nil {
-		return fmt.Errorf("failed to create files directory: %w", err)
-	}
-
-	for _, appConfig := range bundle.Apps {
-		appFilesDir := filepath.Join(filesDir, appConfig.Name)
-		if err := os.MkdirAll(appFilesDir, 0755); err != nil {
-			return fmt.Errorf("failed to create app files directory: %w", err)
-		}
-
-		for _, path := range appConfig.Paths {
-			storePath := filepath.Join(m.storeDir, path.Destination)
-			if !m.pathExists(storePath) {
-				if m.verbose {
-					fmt.Printf("  Skipping missing file: %s\n", storePath)
-				}
-				continue
-			}
-
-			// Create destination path in bundle
-			destPath := filepath.Join(appFilesDir, path.Destination)
-			destDir := filepath.Dir(destPath)
-			if err := os.MkdirAll(destDir, 0755); err != nil {
-				return fmt.Errorf("failed to create bundle path directory: %w", err)
-			}
-
-			// Copy file/directory
-			if err := m.copyPath(storePath, destPath); err != nil {
-				return fmt.Errorf("failed to copy %s: %w", storePath, err)
-			}
-
-			if m.verbose {
-				fmt.Printf("  Added: %s\n", path.Destination)
-			}
-		}
+	if err := m.copyBundleFiles(bundle, tempDir); err != nil {
+		return err
 	}
 
 	// Create compressed bundle
@@ -203,13 +133,148 @@ func (m *Manager) DeployBundle(bundle *config.DeploymentBundle, bundleDir string
 		fmt.Printf("Deploying bundle to current system\n")
 	}
 
-	// Load current configuration
+	// Load current configuration and check conflicts
+	if err := m.checkDeploymentConflicts(bundle, configManager, force); err != nil {
+		return err
+	}
+
+	// Deploy all applications
+	deployed, failed := m.deployAllApplications(bundle, bundleDir, configManager)
+
+	// Show deployment summary
+	m.showDeploymentSummary(deployed, failed)
+
+	// Return error if no applications were deployed
+	if len(deployed) == 0 && len(failed) > 0 {
+		return fmt.Errorf("failed to deploy any applications")
+	}
+
+	return nil
+}
+
+// Helper methods and types
+
+// Conflict represents a deployment conflict between source and target files
+type Conflict struct {
+	AppName string
+	Message string
+}
+
+// createDeploymentBundle creates and populates the bundle metadata
+func (m *Manager) createDeploymentBundle(cfg *config.Config, apps []string) (*config.DeploymentBundle, error) {
+	bundle := &config.DeploymentBundle{
+		Version:   "1.0",
+		CreatedAt: time.Now(),
+		CreatedBy: m.getUserInfo(),
+		Apps:      make(map[string]*config.AppConfig),
+		Metadata:  make(map[string]string),
+	}
+
+	// Add system information to metadata
+	bundle.Metadata["platform"] = "darwin"
+	bundle.Metadata["created_on"] = m.getSystemInfo()
+
+	// Select apps to include
+	if len(apps) == 0 {
+		bundle.Apps = cfg.Apps
+		if m.verbose {
+			fmt.Printf("Including all %d configured applications\n", len(cfg.Apps))
+		}
+	} else {
+		for _, appName := range apps {
+			if appConfig, exists := cfg.Apps[appName]; exists {
+				bundle.Apps[appName] = appConfig
+				if m.verbose {
+					fmt.Printf("Including application: %s\n", appConfig.DisplayName)
+				}
+			} else {
+				return nil, fmt.Errorf("application not found: %s", appName)
+			}
+		}
+	}
+
+	if len(bundle.Apps) == 0 {
+		return nil, fmt.Errorf("no applications to export")
+	}
+
+	return bundle, nil
+}
+
+// prepareBundleDirectory creates and returns a temporary directory with cleanup function
+func (m *Manager) prepareBundleDirectory() (string, func(), error) {
+	tempDir, err := os.MkdirTemp("", "configsync-bundle-*")
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to create temp directory: %w", err)
+	}
+
+	cleanup := func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			fmt.Printf("Warning: failed to clean up temporary directory: %v\n", err)
+		}
+	}
+
+	return tempDir, cleanup, nil
+}
+
+// copyBundleFiles copies configuration files to the bundle directory
+func (m *Manager) copyBundleFiles(bundle *config.DeploymentBundle, tempDir string) error {
+	filesDir := filepath.Join(tempDir, "files")
+	if err := os.MkdirAll(filesDir, 0755); err != nil {
+		return fmt.Errorf("failed to create files directory: %w", err)
+	}
+
+	for _, appConfig := range bundle.Apps {
+		if err := m.copyAppFiles(appConfig, filesDir); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// copyAppFiles copies files for a specific application
+func (m *Manager) copyAppFiles(appConfig *config.AppConfig, filesDir string) error {
+	appFilesDir := filepath.Join(filesDir, appConfig.Name)
+	if err := os.MkdirAll(appFilesDir, 0755); err != nil {
+		return fmt.Errorf("failed to create app files directory: %w", err)
+	}
+
+	for _, path := range appConfig.Paths {
+		storePath := filepath.Join(m.storeDir, path.Destination)
+		if !m.pathExists(storePath) {
+			if m.verbose {
+				fmt.Printf("  Skipping missing file: %s\n", storePath)
+			}
+			continue
+		}
+
+		// Create destination path in bundle
+		destPath := filepath.Join(appFilesDir, path.Destination)
+		destDir := filepath.Dir(destPath)
+		if err := os.MkdirAll(destDir, 0755); err != nil {
+			return fmt.Errorf("failed to create bundle path directory: %w", err)
+		}
+
+		// Copy file/directory
+		if err := m.copyPath(storePath, destPath); err != nil {
+			return fmt.Errorf("failed to copy %s: %w", storePath, err)
+		}
+
+		if m.verbose {
+			fmt.Printf("  Added: %s\n", path.Destination)
+		}
+	}
+
+	return nil
+}
+
+// checkDeploymentConflicts checks for conflicts and returns error if found
+func (m *Manager) checkDeploymentConflicts(bundle *config.DeploymentBundle, configManager *config.Manager, force bool) error {
 	currentCfg, err := configManager.Load()
 	if err != nil {
 		return fmt.Errorf("failed to load current configuration: %w", err)
 	}
 
-	// Check for conflicts if not forcing
 	if !force {
 		conflicts := m.detectConflicts(bundle, currentCfg)
 		if len(conflicts) > 0 {
@@ -221,7 +286,11 @@ func (m *Manager) DeployBundle(bundle *config.DeploymentBundle, bundleDir string
 		}
 	}
 
-	// Deploy each application
+	return nil
+}
+
+// deployAllApplications deploys all applications in the bundle
+func (m *Manager) deployAllApplications(bundle *config.DeploymentBundle, bundleDir string, configManager *config.Manager) ([]string, []string) {
 	var deployed []string
 	var failed []string
 
@@ -230,34 +299,42 @@ func (m *Manager) DeployBundle(bundle *config.DeploymentBundle, bundleDir string
 			fmt.Printf("\nDeploying %s...\n", bundleAppConfig.DisplayName)
 		}
 
-		// Copy files from bundle to store
-		bundleFilesDir := filepath.Join(bundleDir, "files", appName)
-		if m.pathExists(bundleFilesDir) {
-			if err := m.deployAppFiles(bundleAppConfig, bundleFilesDir); err != nil {
-				if m.verbose {
-					fmt.Printf("  ✗ Failed to deploy files for %s: %v\n", bundleAppConfig.DisplayName, err)
-				}
-				failed = append(failed, bundleAppConfig.DisplayName)
-				continue
-			}
-		}
-
-		// Add/update app configuration
-		if err := configManager.AddApp(bundleAppConfig); err != nil {
+		if err := m.deployApplication(bundleAppConfig, bundleDir, configManager, appName); err != nil {
 			if m.verbose {
-				fmt.Printf("  ✗ Failed to add configuration for %s: %v\n", bundleAppConfig.DisplayName, err)
+				fmt.Printf("  ✗ Failed to deploy %s: %v\n", bundleAppConfig.DisplayName, err)
 			}
 			failed = append(failed, bundleAppConfig.DisplayName)
-			continue
+		} else {
+			if m.verbose {
+				fmt.Printf("  ✓ Deployed %s successfully\n", bundleAppConfig.DisplayName)
+			}
+			deployed = append(deployed, bundleAppConfig.DisplayName)
 		}
-
-		if m.verbose {
-			fmt.Printf("  ✓ Deployed %s successfully\n", bundleAppConfig.DisplayName)
-		}
-		deployed = append(deployed, bundleAppConfig.DisplayName)
 	}
 
-	// Show deployment summary
+	return deployed, failed
+}
+
+// deployApplication deploys a single application
+func (m *Manager) deployApplication(bundleAppConfig *config.AppConfig, bundleDir string, configManager *config.Manager, appName string) error {
+	// Copy files from bundle to store
+	bundleFilesDir := filepath.Join(bundleDir, "files", appName)
+	if m.pathExists(bundleFilesDir) {
+		if err := m.deployAppFiles(bundleAppConfig, bundleFilesDir); err != nil {
+			return fmt.Errorf("failed to deploy files: %w", err)
+		}
+	}
+
+	// Add/update app configuration
+	if err := configManager.AddApp(bundleAppConfig); err != nil {
+		return fmt.Errorf("failed to add configuration: %w", err)
+	}
+
+	return nil
+}
+
+// showDeploymentSummary displays the deployment results
+func (m *Manager) showDeploymentSummary(deployed, failed []string) {
 	fmt.Println()
 	if len(deployed) > 0 {
 		fmt.Printf("✓ Successfully deployed %d application(s):\n", len(deployed))
@@ -271,25 +348,11 @@ func (m *Manager) DeployBundle(bundle *config.DeploymentBundle, bundleDir string
 		for _, name := range failed {
 			fmt.Printf("  - %s\n", name)
 		}
-
-		if len(deployed) == 0 {
-			return fmt.Errorf("failed to deploy any applications")
-		}
 	}
 
 	if len(deployed) > 0 {
 		fmt.Println("\nNext step: Run 'configsync sync' to create symlinks")
 	}
-
-	return nil
-}
-
-// Helper methods and types
-
-// Conflict represents a deployment conflict between source and target files
-type Conflict struct {
-	AppName string
-	Message string
 }
 
 func (m *Manager) detectConflicts(bundle *config.DeploymentBundle, currentCfg *config.Config) []Conflict {
@@ -358,7 +421,7 @@ func (m *Manager) getUserInfo() string {
 	if user := os.Getenv("USER"); user != "" {
 		return user
 	}
-	return "unknown"
+	return constants.TestUnknown
 }
 
 func (m *Manager) getSystemInfo() string {
@@ -392,8 +455,8 @@ func (m *Manager) copyFile(src, dst string) error {
 		return err
 	}
 	defer func() {
-		if err := srcFile.Close(); err != nil {
-			fmt.Printf("Warning: failed to close source file: %v\n", err)
+		if closeErr := srcFile.Close(); closeErr != nil {
+			fmt.Printf("Warning: failed to close source file: %v\n", closeErr)
 		}
 	}()
 
@@ -408,9 +471,9 @@ func (m *Manager) copyFile(src, dst string) error {
 	}
 
 	// Copy permissions
-	srcInfo, err := srcFile.Stat()
-	if err != nil {
-		return err
+	srcInfo, statErr := srcFile.Stat()
+	if statErr != nil {
+		return statErr
 	}
 	return os.Chmod(dst, srcInfo.Mode())
 }

@@ -68,28 +68,42 @@ func runBackup(cmd *cobra.Command, args []string) error {
 }
 
 func createBackups(backupManager *backup.Manager, args []string, cfg *config.Config) error {
-	// Get applications to backup
-	var appsToBackup map[string]*config.AppConfig
-	if len(args) == 0 {
-		appsToBackup = cfg.Apps
-		if len(appsToBackup) == 0 {
-			fmt.Println("No applications configured. Use 'configsync add <app>' to add applications.")
-			return nil
-		}
-	} else {
-		appsToBackup = make(map[string]*config.AppConfig)
-		for _, appName := range args {
-			if app, exists := cfg.Apps[appName]; exists {
-				appsToBackup[appName] = app
-			} else {
-				return fmt.Errorf("application %s is not configured", appName)
-			}
-		}
+	appsToBackup, err := selectAppsToBackup(cfg, args)
+	if err != nil {
+		return err
 	}
 
-	// Create backups for each application
-	var successful []string
-	var failed []string
+	if len(appsToBackup) == 0 {
+		fmt.Println("No applications configured. Use 'configsync add <app>' to add applications.")
+		return nil
+	}
+
+	successful, failed := performBackups(backupManager, appsToBackup)
+	showBackupResults(successful, failed)
+
+	return nil
+}
+
+// selectAppsToBackup determines which apps to backup based on arguments
+func selectAppsToBackup(cfg *config.Config, args []string) (map[string]*config.AppConfig, error) {
+	if len(args) == 0 {
+		return cfg.Apps, nil
+	}
+
+	appsToBackup := make(map[string]*config.AppConfig)
+	for _, appName := range args {
+		if app, exists := cfg.Apps[appName]; exists {
+			appsToBackup[appName] = app
+		} else {
+			return nil, fmt.Errorf("application %s is not configured", appName)
+		}
+	}
+	return appsToBackup, nil
+}
+
+// performBackups creates backups for the specified applications
+func performBackups(backupManager *backup.Manager, appsToBackup map[string]*config.AppConfig) ([]string, []string) {
+	var successful, failed []string
 
 	for appName, appConfig := range appsToBackup {
 		if verbose {
@@ -116,7 +130,11 @@ func createBackups(backupManager *backup.Manager, args []string, cfg *config.Con
 		}
 	}
 
-	// Show results
+	return successful, failed
+}
+
+// showBackupResults displays the backup operation results
+func showBackupResults(successful, failed []string) {
 	fmt.Println()
 	if len(successful) > 0 {
 		fmt.Printf("✓ Successfully backed up %d application(s):\n", len(successful))
@@ -131,8 +149,6 @@ func createBackups(backupManager *backup.Manager, args []string, cfg *config.Con
 			fmt.Printf("  - %s\n", name)
 		}
 	}
-
-	return nil
 }
 
 func validateBackups(backupManager *backup.Manager, args []string, cfg *config.Config) error {
@@ -222,40 +238,16 @@ Examples:
 }
 
 func runRestore(_ *cobra.Command, args []string) error {
-	// Create configuration manager
-	manager := config.NewManager(homeDir)
-
-	// Check if ConfigSync is initialized
-	if !manager.ConfigExists() {
-		return fmt.Errorf("ConfigSync is not initialized. Run 'configsync init' first")
-	}
-
-	// Load configuration
-	cfg, err := manager.Load()
+	// Initialize and load configuration
+	_, cfg, backupManager, err := initializeRestoreComponents()
 	if err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
+		return err
 	}
 
-	// Create backup manager
-	backupManager := backup.NewManager(cfg.BackupPath, homeDir, verbose)
-
-	// Get applications to restore
-	var appsToRestore []string
-	if restoreAll {
-		// Restore all apps that have backups
-		for appName := range cfg.Apps {
-			backups, err := backupManager.ListBackups(appName)
-			if err != nil {
-				continue
-			}
-			if len(backups) > 0 {
-				appsToRestore = append(appsToRestore, appName)
-			}
-		}
-	} else if len(args) > 0 {
-		appsToRestore = args
-	} else {
-		return fmt.Errorf("specify applications to restore or use --all flag")
+	// Determine applications to restore
+	appsToRestore, err := determineAppsToRestore(args, cfg, backupManager)
+	if err != nil {
+		return err
 	}
 
 	if len(appsToRestore) == 0 {
@@ -263,59 +255,9 @@ func runRestore(_ *cobra.Command, args []string) error {
 		return nil
 	}
 
-	// Restore each application
-	var successful []string
-	var failed []string
-
-	for _, appName := range appsToRestore {
-		appConfig, exists := cfg.Apps[appName]
-		if !exists {
-			failed = append(failed, appName)
-			if verbose {
-				fmt.Printf("Application %s is not configured\n", appName)
-			}
-			continue
-		}
-
-		if verbose {
-			fmt.Printf("\n=== %s ===\n", appConfig.DisplayName)
-		}
-
-		pathErrors := 0
-		for _, path := range appConfig.Paths {
-			if err := backupManager.RestorePath(appName, &path); err != nil {
-				if verbose {
-					fmt.Printf("  ✗ Failed to restore %s: %v\n", path.Source, err)
-				}
-				pathErrors++
-			}
-		}
-
-		if pathErrors == 0 {
-			successful = append(successful, appConfig.DisplayName)
-			if verbose {
-				fmt.Printf("✓ Restored %s\n", appConfig.DisplayName)
-			}
-		} else {
-			failed = append(failed, appConfig.DisplayName)
-		}
-	}
-
-	// Show results
-	fmt.Println()
-	if len(successful) > 0 {
-		fmt.Printf("✓ Successfully restored %d application(s):\n", len(successful))
-		for _, name := range successful {
-			fmt.Printf("  - %s\n", name)
-		}
-	}
-
-	if len(failed) > 0 {
-		fmt.Printf("\n✗ Failed to restore %d application(s):\n", len(failed))
-		for _, name := range failed {
-			fmt.Printf("  - %s\n", name)
-		}
-	}
+	// Restore applications and show results
+	successful, failed := restoreApplications(appsToRestore, cfg, backupManager)
+	showRestoreResults(successful, failed)
 
 	return nil
 }
@@ -414,8 +356,8 @@ func runImport(_ *cobra.Command, args []string) error {
 
 	// Create import directory
 	importDir := filepath.Join(configDir, "import")
-	if err := os.RemoveAll(importDir); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("failed to clean import directory: %w", err)
+	if rmErr := os.RemoveAll(importDir); rmErr != nil && !os.IsNotExist(rmErr) {
+		return fmt.Errorf("failed to clean import directory: %w", rmErr)
 	}
 
 	// Import bundle
@@ -489,6 +431,117 @@ func runDeploy(_ *cobra.Command, _ []string) error {
 	}
 
 	return nil
+}
+
+// Helper functions for runRestore
+
+// initializeRestoreComponents sets up configuration manager, config, and backup manager
+func initializeRestoreComponents() (*config.Manager, *config.Config, *backup.Manager, error) {
+	manager := config.NewManager(homeDir)
+
+	if !manager.ConfigExists() {
+		return nil, nil, nil, fmt.Errorf("ConfigSync is not initialized. Run 'configsync init' first")
+	}
+
+	cfg, err := manager.Load()
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	backupManager := backup.NewManager(cfg.BackupPath, homeDir, verbose)
+	return manager, cfg, backupManager, nil
+}
+
+// determineAppsToRestore gets the list of applications to restore
+func determineAppsToRestore(args []string, cfg *config.Config, backupManager *backup.Manager) ([]string, error) {
+	var appsToRestore []string
+
+	if restoreAll {
+		for appName := range cfg.Apps {
+			backups, err := backupManager.ListBackups(appName)
+			if err != nil {
+				continue
+			}
+			if len(backups) > 0 {
+				appsToRestore = append(appsToRestore, appName)
+			}
+		}
+	} else if len(args) > 0 {
+		appsToRestore = args
+	} else {
+		return nil, fmt.Errorf("specify applications to restore or use --all flag")
+	}
+
+	return appsToRestore, nil
+}
+
+// restoreApplications performs the actual restoration for all applications
+func restoreApplications(appsToRestore []string, cfg *config.Config, backupManager *backup.Manager) ([]string, []string) {
+	var successful []string
+	var failed []string
+
+	for _, appName := range appsToRestore {
+		appConfig, exists := cfg.Apps[appName]
+		if !exists {
+			failed = append(failed, appName)
+			if verbose {
+				fmt.Printf("Application %s is not configured\n", appName)
+			}
+			continue
+		}
+
+		if restoreApplication(appConfig, appName, backupManager) {
+			successful = append(successful, appConfig.DisplayName)
+		} else {
+			failed = append(failed, appConfig.DisplayName)
+		}
+	}
+
+	return successful, failed
+}
+
+// restoreApplication restores a single application
+func restoreApplication(appConfig *config.AppConfig, appName string, backupManager *backup.Manager) bool {
+	if verbose {
+		fmt.Printf("\n=== %s ===\n", appConfig.DisplayName)
+	}
+
+	pathErrors := 0
+	for _, path := range appConfig.Paths {
+		if err := backupManager.RestorePath(appName, &path); err != nil {
+			if verbose {
+				fmt.Printf("  ✗ Failed to restore %s: %v\n", path.Source, err)
+			}
+			pathErrors++
+		}
+	}
+
+	if pathErrors == 0 {
+		if verbose {
+			fmt.Printf("✓ Restored %s\n", appConfig.DisplayName)
+		}
+		return true
+	}
+
+	return false
+}
+
+// showRestoreResults displays the restoration results
+func showRestoreResults(successful, failed []string) {
+	fmt.Println()
+	if len(successful) > 0 {
+		fmt.Printf("✓ Successfully restored %d application(s):\n", len(successful))
+		for _, name := range successful {
+			fmt.Printf("  - %s\n", name)
+		}
+	}
+
+	if len(failed) > 0 {
+		fmt.Printf("\n✗ Failed to restore %d application(s):\n", len(failed))
+		for _, name := range failed {
+			fmt.Printf("  - %s\n", name)
+		}
+	}
 }
 
 func init() {

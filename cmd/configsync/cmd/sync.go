@@ -25,55 +25,73 @@ Examples:
 }
 
 func runSync(_ *cobra.Command, args []string) error {
-	// Create configuration manager
 	manager := config.NewManager(homeDir)
 
-	// Check if ConfigSync is initialized
 	if !manager.ConfigExists() {
 		return fmt.Errorf("ConfigSync is not initialized. Run 'configsync init' first")
 	}
 
-	// Load configuration
 	cfg, err := manager.Load()
 	if err != nil {
 		return fmt.Errorf("failed to load configuration: %w", err)
 	}
 
-	// Get applications to sync
-	var appsToSync map[string]*config.AppConfig
-	if len(args) == 0 {
-		// Sync all apps
-		appsToSync = cfg.Apps
-		if len(appsToSync) == 0 {
-			fmt.Println("No applications configured. Use 'configsync add <app>' to add applications.")
-			return nil
-		}
-		if verbose {
-			fmt.Printf("Syncing all %d configured applications...\n", len(appsToSync))
-		}
-	} else {
-		// Sync specific apps
-		appsToSync = make(map[string]*config.AppConfig)
-		for _, appName := range args {
-			if app, exists := cfg.Apps[appName]; exists {
-				appsToSync[appName] = app
-			} else {
-				return fmt.Errorf("application %s is not configured. Use 'configsync add %s' first", appName, appName)
-			}
-		}
-		if verbose {
-			fmt.Printf("Syncing %d specified applications...\n", len(appsToSync))
+	appsToSync, err := selectAppsToSync(cfg, args)
+	if err != nil {
+		return err
+	}
+
+	if len(appsToSync) == 0 {
+		fmt.Println("No applications configured. Use 'configsync add <app>' to add applications.")
+		return nil
+	}
+
+	symlinkManager := symlink.NewManager(homeDir, cfg.StorePath, cfg.BackupPath, dryRun, verbose)
+	successful, failed := syncApplications(symlinkManager, appsToSync)
+
+	if !dryRun && len(successful) > 0 {
+		if err := manager.UpdateLastSync(); err != nil {
+			fmt.Printf("Warning: failed to update last sync time: %v\n", err)
 		}
 	}
 
-	// Create symlink manager
-	symlinkManager := symlink.NewManager(homeDir, cfg.StorePath, cfg.BackupPath, dryRun, verbose)
+	showSyncSummary(successful, failed)
 
-	// Sync each application
-	var successful []string
-	var failed []string
+	if len(failed) > 0 && len(successful) == 0 {
+		return fmt.Errorf("failed to sync any applications")
+	}
 
-	for _, appConfig := range appsToSync {
+	return nil
+}
+
+// selectAppsToSync determines which applications to sync based on arguments
+func selectAppsToSync(cfg *config.Config, args []string) (map[string]*config.AppConfig, error) {
+	if len(args) == 0 {
+		if verbose {
+			fmt.Printf("Syncing all %d configured applications...\n", len(cfg.Apps))
+		}
+		return cfg.Apps, nil
+	}
+
+	appsToSync := make(map[string]*config.AppConfig)
+	for _, appName := range args {
+		if app, exists := cfg.Apps[appName]; exists {
+			appsToSync[appName] = app
+		} else {
+			return nil, fmt.Errorf("application %s is not configured. Use 'configsync add %s' first", appName, appName)
+		}
+	}
+	if verbose {
+		fmt.Printf("Syncing %d specified applications...\n", len(appsToSync))
+	}
+	return appsToSync, nil
+}
+
+// syncApplications syncs all provided applications and returns successful and failed lists
+func syncApplications(symlinkManager *symlink.Manager, apps map[string]*config.AppConfig) ([]string, []string) {
+	var successful, failed []string
+
+	for _, appConfig := range apps {
 		if verbose || dryRun {
 			fmt.Printf("\n=== %s ===\n", appConfig.DisplayName)
 		}
@@ -91,14 +109,11 @@ func runSync(_ *cobra.Command, args []string) error {
 		}
 	}
 
-	// Update last sync time if not dry run
-	if !dryRun && len(successful) > 0 {
-		if err := manager.UpdateLastSync(); err != nil {
-			fmt.Printf("Warning: failed to update last sync time: %v\n", err)
-		}
-	}
+	return successful, failed
+}
 
-	// Show summary
+// showSyncSummary displays the sync results summary
+func showSyncSummary(successful, failed []string) {
 	fmt.Println()
 	if dryRun {
 		fmt.Println("=== DRY RUN SUMMARY ===")
@@ -126,17 +141,11 @@ func runSync(_ *cobra.Command, args []string) error {
 		for _, name := range failed {
 			fmt.Printf("  - %s\n", name)
 		}
-
-		if len(successful) == 0 {
-			return fmt.Errorf("failed to sync any applications")
-		}
 	}
 
 	if dryRun && len(successful) > 0 {
 		fmt.Println("\nRun without --dry-run to apply these changes.")
 	}
-
-	return nil
 }
 
 func init() {

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dotbrains/configsync/internal/constants"
 	"github.com/spf13/cobra"
 )
 
@@ -247,7 +248,7 @@ func TestCommandHelp(t *testing.T) {
 		cmd  *cobra.Command
 		name string
 	}{
-		{rootCmd, "root"},
+		{rootCmd, constants.RootCommandName},
 		// Skip individual command help tests as they may not work in test context
 		// Individual commands are tested via structure tests
 	}
@@ -257,12 +258,12 @@ func TestCommandHelp(t *testing.T) {
 			output, err := executeCommand(tt.cmd, "--help")
 
 			// Help should always work for root command
-			if err != nil && tt.name == "root" {
+			if err != nil && tt.name == constants.RootCommandName {
 				t.Errorf("Help for %s command should not error: %v", tt.name, err)
 			}
 
 			// Root command help output should contain command description
-			if tt.name == "root" && len(output) < 10 {
+			if tt.name == constants.RootCommandName && len(output) < 10 {
 				t.Errorf("Help for %s command should produce meaningful output, got: %d chars", tt.name, len(output))
 			}
 		})

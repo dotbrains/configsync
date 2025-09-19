@@ -76,8 +76,8 @@ func TestPathExistsSymlink(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create target file: %v", err)
 	}
-	if err := file.Close(); err != nil {
-		t.Errorf("Failed to close file: %v", err)
+	if closeErr := file.Close(); closeErr != nil {
+		t.Errorf("Failed to close file: %v", closeErr)
 	}
 
 	// Create a symlink to the target file

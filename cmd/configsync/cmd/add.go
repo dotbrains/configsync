@@ -31,35 +31,40 @@ Examples:
 }
 
 func runAdd(_ *cobra.Command, args []string) error {
-	// Handle --list-supported flag
 	if listSupported {
 		return showSupportedApps()
 	}
 
-	// Require at least one app name
 	if len(args) == 0 {
 		return fmt.Errorf("at least one application name is required\nUse 'configsync add --list-supported' to see supported applications")
 	}
 
-	// Create configuration manager and detector
 	manager := config.NewManager(homeDir)
 	detector := apps.NewAppDetector(homeDir)
 
-	// Check if ConfigSync is initialized
 	if !manager.ConfigExists() {
 		return fmt.Errorf("ConfigSync is not initialized. Run 'configsync init' first")
 	}
 
-	// Process each application
-	var successful []string
-	var failed []string
+	successful, failed := addApplications(manager, detector, args)
+	showAddResults(successful, failed)
+
+	if len(failed) > 0 && len(successful) == 0 {
+		return fmt.Errorf("failed to add any applications")
+	}
+
+	return nil
+}
+
+// addApplications processes adding applications and returns successful and failed lists
+func addApplications(manager *config.Manager, detector *apps.AppDetector, args []string) ([]string, []string) {
+	var successful, failed []string
 
 	for _, appName := range args {
 		if verbose {
 			fmt.Printf("Processing application: %s\n", appName)
 		}
 
-		// Try to detect the application
 		appConfig, err := detector.DetectApp(appName)
 		if err != nil {
 			if verbose {
@@ -69,7 +74,6 @@ func runAdd(_ *cobra.Command, args []string) error {
 			continue
 		}
 
-		// Add to configuration
 		if err := manager.AddApp(appConfig); err != nil {
 			if verbose {
 				fmt.Printf("  ✗ Failed to add %s: %v\n", appName, err)
@@ -87,7 +91,11 @@ func runAdd(_ *cobra.Command, args []string) error {
 		successful = append(successful, appConfig.DisplayName)
 	}
 
-	// Show results
+	return successful, failed
+}
+
+// showAddResults displays the add operation results
+func showAddResults(successful, failed []string) {
 	if len(successful) > 0 {
 		fmt.Printf("✓ Successfully added %d application(s):\n", len(successful))
 		for _, name := range successful {
@@ -101,17 +109,11 @@ func runAdd(_ *cobra.Command, args []string) error {
 			fmt.Printf("  - %s\n", name)
 		}
 		fmt.Println("\nTip: Use 'configsync add --list-supported' to see supported applications")
-
-		if len(successful) == 0 {
-			return fmt.Errorf("failed to add any applications")
-		}
 	}
 
 	if len(successful) > 0 {
 		fmt.Println("\nNext step: Run 'configsync sync' to create symlinks")
 	}
-
-	return nil
 }
 
 func showSupportedApps() error {

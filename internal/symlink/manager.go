@@ -13,12 +13,12 @@ import (
 
 // Manager handles symlink operations
 type Manager struct {
+	backupManager *backup.Manager
 	homeDir       string
 	storeDir      string
 	backupDir     string
 	dryRun        bool
 	verbose       bool
-	backupManager *backup.Manager
 }
 
 // NewManager creates a new symlink manager
@@ -91,7 +91,7 @@ func (m *Manager) UnsyncApp(appConfig *config.AppConfig) error {
 }
 
 // syncPath creates a symlink for a single configuration path
-func (m *Manager) syncPath(path *config.ConfigPath) error {
+func (m *Manager) syncPath(path *config.Path) error {
 	sourcePath := m.expandPath(path.Source)
 	storePath := filepath.Join(m.storeDir, path.Destination)
 
@@ -99,7 +99,6 @@ func (m *Manager) syncPath(path *config.ConfigPath) error {
 		fmt.Printf("  Syncing: %s -> %s\n", sourcePath, storePath)
 	}
 
-	// Check if source already exists and is a symlink to the correct target
 	if m.isCorrectSymlink(sourcePath, storePath) {
 		if m.verbose {
 			fmt.Printf("    Already synced correctly\n")
@@ -107,81 +106,23 @@ func (m *Manager) syncPath(path *config.ConfigPath) error {
 		return nil
 	}
 
-	// Ensure store directory exists
-	storeDir := filepath.Dir(storePath)
-	if !m.dryRun {
-		if err := os.MkdirAll(storeDir, 0755); err != nil {
-			return fmt.Errorf("failed to create store directory: %w", err)
-		}
-	} else {
-		fmt.Printf("    [DRY RUN] Would create directory: %s\n", storeDir)
+	if err := m.ensureStoreDirectory(storePath); err != nil {
+		return err
 	}
 
-	// Handle existing source file/directory
-	if m.pathExists(sourcePath) {
-		if m.isSymlink(sourcePath) {
-			// Remove existing symlink
-			if m.verbose {
-				fmt.Printf("    Removing existing symlink: %s\n", sourcePath)
-			}
-			if !m.dryRun {
-				if err := os.Remove(sourcePath); err != nil {
-					return fmt.Errorf("failed to remove existing symlink: %w", err)
-				}
-			} else {
-				fmt.Printf("    [DRY RUN] Would remove symlink: %s\n", sourcePath)
-			}
-		} else {
-			// Create backup before moving to store
-			if !m.dryRun {
-				if err := m.backupManager.BackupPath("temp", path); err != nil {
-					if m.verbose {
-						fmt.Printf("    Warning: backup failed: %v\n", err)
-					}
-				}
-			}
-
-			// Move existing file/directory to store
-			if m.verbose {
-				fmt.Printf("    Moving to store: %s -> %s\n", sourcePath, storePath)
-			}
-			if !m.dryRun {
-				if err := m.moveToStore(sourcePath, storePath); err != nil {
-					return fmt.Errorf("failed to move to store: %w", err)
-				}
-				path.MarkBackedUp()
-			} else {
-				fmt.Printf("    [DRY RUN] Would move: %s -> %s\n", sourcePath, storePath)
-			}
-		}
-	} else if !m.pathExists(storePath) {
-		// Neither source nor store exists
-		if path.Required {
-			return fmt.Errorf("required path does not exist: %s", sourcePath)
-		}
-		if m.verbose {
-			fmt.Printf("    Skipping non-existent optional path: %s\n", sourcePath)
-		}
-		return nil
+	if err := m.handleExistingSource(sourcePath, storePath, path); err != nil {
+		return err
 	}
 
-	// Create symlink from source to store
-	if m.verbose {
-		fmt.Printf("    Creating symlink: %s -> %s\n", sourcePath, storePath)
-	}
-	if !m.dryRun {
-		if err := m.createSymlink(storePath, sourcePath); err != nil {
-			return fmt.Errorf("failed to create symlink: %w", err)
-		}
-	} else {
-		fmt.Printf("    [DRY RUN] Would create symlink: %s -> %s\n", sourcePath, storePath)
+	if !m.pathExists(sourcePath) && !m.pathExists(storePath) {
+		return m.handleMissingPath(sourcePath, path)
 	}
 
-	return nil
+	return m.createFinalSymlink(sourcePath, storePath)
 }
 
 // unsyncPath removes a symlink and restores the original file if backed up
-func (m *Manager) unsyncPath(path *config.ConfigPath) error {
+func (m *Manager) unsyncPath(path *config.Path) error {
 	sourcePath := m.expandPath(path.Source)
 	storePath := filepath.Join(m.storeDir, path.Destination)
 
@@ -223,6 +164,97 @@ func (m *Manager) unsyncPath(path *config.ConfigPath) error {
 		}
 	}
 
+	return nil
+}
+
+// ensureStoreDirectory creates the store directory if needed
+func (m *Manager) ensureStoreDirectory(storePath string) error {
+	storeDir := filepath.Dir(storePath)
+	if !m.dryRun {
+		if err := os.MkdirAll(storeDir, 0755); err != nil {
+			return fmt.Errorf("failed to create store directory: %w", err)
+		}
+	} else {
+		fmt.Printf("    [DRY RUN] Would create directory: %s\n", storeDir)
+	}
+	return nil
+}
+
+// handleExistingSource processes an existing source file or symlink
+func (m *Manager) handleExistingSource(sourcePath, storePath string, path *config.Path) error {
+	if !m.pathExists(sourcePath) {
+		return nil
+	}
+
+	if m.isSymlink(sourcePath) {
+		return m.removeExistingSymlink(sourcePath)
+	}
+
+	return m.moveSourceToStore(sourcePath, storePath, path)
+}
+
+// removeExistingSymlink removes an existing symlink
+func (m *Manager) removeExistingSymlink(sourcePath string) error {
+	if m.verbose {
+		fmt.Printf("    Removing existing symlink: %s\n", sourcePath)
+	}
+	if !m.dryRun {
+		if err := os.Remove(sourcePath); err != nil {
+			return fmt.Errorf("failed to remove existing symlink: %w", err)
+		}
+	} else {
+		fmt.Printf("    [DRY RUN] Would remove symlink: %s\n", sourcePath)
+	}
+	return nil
+}
+
+// moveSourceToStore moves the source file/directory to store with backup
+func (m *Manager) moveSourceToStore(sourcePath, storePath string, path *config.Path) error {
+	if !m.dryRun {
+		if err := m.backupManager.BackupPath("temp", path); err != nil {
+			if m.verbose {
+				fmt.Printf("    Warning: backup failed: %v\n", err)
+			}
+		}
+	}
+
+	if m.verbose {
+		fmt.Printf("    Moving to store: %s -> %s\n", sourcePath, storePath)
+	}
+	if !m.dryRun {
+		if err := m.moveToStore(sourcePath, storePath); err != nil {
+			return fmt.Errorf("failed to move to store: %w", err)
+		}
+		path.MarkBackedUp()
+	} else {
+		fmt.Printf("    [DRY RUN] Would move: %s -> %s\n", sourcePath, storePath)
+	}
+	return nil
+}
+
+// handleMissingPath handles the case where neither source nor store exists
+func (m *Manager) handleMissingPath(sourcePath string, path *config.Path) error {
+	if path.Required {
+		return fmt.Errorf("required path does not exist: %s", sourcePath)
+	}
+	if m.verbose {
+		fmt.Printf("    Skipping non-existent optional path: %s\n", sourcePath)
+	}
+	return nil
+}
+
+// createFinalSymlink creates the final symlink
+func (m *Manager) createFinalSymlink(sourcePath, storePath string) error {
+	if m.verbose {
+		fmt.Printf("    Creating symlink: %s -> %s\n", sourcePath, storePath)
+	}
+	if !m.dryRun {
+		if err := m.createSymlink(storePath, sourcePath); err != nil {
+			return fmt.Errorf("failed to create symlink: %w", err)
+		}
+	} else {
+		fmt.Printf("    [DRY RUN] Would create symlink: %s -> %s\n", sourcePath, storePath)
+	}
 	return nil
 }
 
@@ -331,9 +363,9 @@ func (m *Manager) copyFile(src, dst string) error {
 	}
 
 	// Copy permissions
-	info, err := sourceFile.Stat()
-	if err != nil {
-		return err
+	info, statErr := sourceFile.Stat()
+	if statErr != nil {
+		return statErr
 	}
 	return os.Chmod(dst, info.Mode())
 }

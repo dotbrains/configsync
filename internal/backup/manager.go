@@ -32,9 +32,9 @@ func NewManager(backupDir, homeDir string, verbose bool) *Manager {
 	}
 }
 
-// BackupPath creates a backup of a configuration path before symlinking
-func (m *Manager) BackupPath(appName string, path *config.ConfigPath) error {
-	sourcePath := m.expandPath(path.Source)
+// BackupPath creates a backup of a single configuration path
+func (m *Manager) BackupPath(appName string, configPath *config.Path) error {
+	sourcePath := m.expandPath(configPath.Source)
 
 	// Check if source exists
 	if !m.pathExists(sourcePath) {
@@ -60,7 +60,7 @@ func (m *Manager) BackupPath(appName string, path *config.ConfigPath) error {
 	}
 
 	// Calculate checksum
-	if path.Type == config.PathTypeFile {
+	if configPath.Type == config.PathTypeFile {
 		checksum, err := m.calculateChecksum(sourcePath)
 		if err != nil {
 			return fmt.Errorf("failed to calculate checksum: %w", err)
@@ -76,7 +76,7 @@ func (m *Manager) BackupPath(appName string, path *config.ConfigPath) error {
 	backupInfo.Size = size
 
 	// Create backup path
-	backupPath := m.getBackupPath(appName, path.Destination)
+	backupPath := m.getBackupPath(appName, configPath.Destination)
 	backupInfo.BackupPath = backupPath
 
 	if m.verbose {
@@ -107,9 +107,9 @@ func (m *Manager) BackupPath(appName string, path *config.ConfigPath) error {
 }
 
 // RestorePath restores a configuration path from backup
-func (m *Manager) RestorePath(appName string, path *config.ConfigPath) error {
-	sourcePath := m.expandPath(path.Source)
-	backupPath := m.getBackupPath(appName, path.Destination)
+func (m *Manager) RestorePath(appName string, configPath *config.Path) error {
+	sourcePath := m.expandPath(configPath.Source)
+	backupPath := m.getBackupPath(appName, configPath.Destination)
 
 	if m.verbose {
 		fmt.Printf("    Restoring: %s <- %s\n", sourcePath, backupPath)
@@ -325,9 +325,9 @@ func (m *Manager) copyFile(src, dst string) error {
 	}
 
 	// Copy permissions
-	srcInfo, err := srcFile.Stat()
-	if err != nil {
-		return err
+	srcInfo, statErr := srcFile.Stat()
+	if statErr != nil {
+		return statErr
 	}
 	return os.Chmod(dst, srcInfo.Mode())
 }

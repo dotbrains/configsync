@@ -476,7 +476,7 @@ func TestDeployBundleWithConflicts(t *testing.T) {
 				Name:        "testapp1",
 				DisplayName: "Test App 1",
 				Enabled:     true,
-				Paths:       []config.ConfigPath{},
+				Paths:       []config.Path{},
 				LastSynced:  time.Now().Add(-24 * time.Hour),
 			},
 		},
@@ -517,7 +517,7 @@ func TestDetectConflicts(t *testing.T) {
 				DisplayName: "Test App 1",
 				Enabled:     true,
 				LastSynced:  time.Now(),
-				Paths:       []config.ConfigPath{{Source: "path1"}, {Source: "path2"}},
+				Paths:       []config.Path{{Source: "path1"}, {Source: "path2"}},
 			},
 		},
 	}
@@ -532,7 +532,7 @@ func TestDetectConflicts(t *testing.T) {
 				DisplayName: "Test App 1",
 				Enabled:     true,
 				LastSynced:  time.Now().Add(-24 * time.Hour),
-				Paths:       []config.ConfigPath{{Source: "path1"}}, // Different path count
+				Paths:       []config.Path{{Source: "path1"}}, // Different path count
 			},
 		},
 	}
@@ -807,7 +807,7 @@ func TestValidateBundle(t *testing.T) {
 		Apps: map[string]*config.AppConfig{
 			"testapp": {
 				Name: "testapp",
-				Paths: []config.ConfigPath{
+				Paths: []config.Path{
 					{Destination: "required.conf", Required: true},
 					{Destination: "optional.conf", Required: false},
 				},
@@ -857,7 +857,7 @@ func TestValidateBundle(t *testing.T) {
 		Apps: map[string]*config.AppConfig{
 			"testapp": {
 				Name: "testapp",
-				Paths: []config.ConfigPath{
+				Paths: []config.Path{
 					{Destination: "missing.conf", Required: true},
 				},
 			},

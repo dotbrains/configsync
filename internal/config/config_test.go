@@ -4,6 +4,8 @@ package config
 import (
 	"testing"
 	"time"
+
+	"github.com/dotbrains/configsync/internal/constants"
 )
 
 func TestNewDefaultConfig(t *testing.T) {
@@ -47,7 +49,7 @@ func TestNewDefaultConfig(t *testing.T) {
 }
 
 func TestNewAppConfig(t *testing.T) {
-	name := "testapp"
+	name := constants.TestAppName
 	displayName := "Test App"
 
 	app := NewAppConfig(name, displayName)
@@ -118,7 +120,7 @@ func TestAppConfigAddPath(t *testing.T) {
 }
 
 func TestConfigPathMarkSynced(t *testing.T) {
-	path := &ConfigPath{
+	path := &Path{
 		Source:      "/test/source",
 		Destination: "/test/dest",
 		Type:        PathTypeFile,
@@ -143,7 +145,7 @@ func TestConfigPathMarkSynced(t *testing.T) {
 }
 
 func TestConfigPathMarkBackedUp(t *testing.T) {
-	path := &ConfigPath{
+	path := &Path{
 		Source:      "/test/source",
 		Destination: "/test/dest",
 		Type:        PathTypeFile,

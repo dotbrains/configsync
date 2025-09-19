@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dotbrains/configsync/internal/config"
+	"github.com/dotbrains/configsync/internal/constants"
 )
 
 func TestNewManager(t *testing.T) {
@@ -46,7 +47,7 @@ func TestBackupPath(t *testing.T) {
 	}
 
 	// Create config path
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      testFile,
 		Destination: "test.conf",
 		Type:        config.PathTypeFile,
@@ -54,13 +55,13 @@ func TestBackupPath(t *testing.T) {
 	}
 
 	// Test backup
-	err = manager.BackupPath("testapp", configPath)
+	err = manager.BackupPath(constants.TestAppName, configPath)
 	if err != nil {
 		t.Fatalf("BackupPath failed: %v", err)
 	}
 
 	// Verify backup was created
-	backupPath := manager.getBackupPath("testapp", "test.conf")
+	backupPath := manager.getBackupPath(constants.TestAppName, "test.conf")
 	if !manager.pathExists(backupPath) {
 		t.Errorf("Backup file not created: %s", backupPath)
 	}
@@ -76,7 +77,7 @@ func TestBackupPath(t *testing.T) {
 	}
 
 	// Verify backup info was saved
-	backups, err := manager.ListBackups("testapp")
+	backups, err := manager.ListBackups(constants.TestAppName)
 	if err != nil {
 		t.Fatalf("Failed to list backups: %v", err)
 	}
@@ -86,7 +87,7 @@ func TestBackupPath(t *testing.T) {
 	}
 
 	backup := backups[0]
-	if backup.AppName != "testapp" {
+	if backup.AppName != constants.TestAppName {
 		t.Errorf("Expected app name 'testapp', got %s", backup.AppName)
 	}
 
@@ -121,7 +122,7 @@ func TestBackupPathDirectory(t *testing.T) {
 	}
 
 	// Create config path for directory
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      testDir,
 		Destination: "testdir",
 		Type:        config.PathTypeDirectory,
@@ -129,13 +130,13 @@ func TestBackupPathDirectory(t *testing.T) {
 	}
 
 	// Test directory backup
-	err = manager.BackupPath("testapp", configPath)
+	err = manager.BackupPath(constants.TestAppName, configPath)
 	if err != nil {
 		t.Fatalf("BackupPath failed for directory: %v", err)
 	}
 
 	// Verify backup directory was created
-	backupPath := manager.getBackupPath("testapp", "testdir")
+	backupPath := manager.getBackupPath(constants.TestAppName, "testdir")
 	if !manager.pathExists(backupPath) {
 		t.Errorf("Backup directory not created: %s", backupPath)
 	}
@@ -169,7 +170,7 @@ func TestBackupPathNonExistent(t *testing.T) {
 	manager := NewManager(backupDir, homeDir, false)
 
 	// Create config path for non-existent file
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      filepath.Join(tempDir, "nonexistent.conf"),
 		Destination: "nonexistent.conf",
 		Type:        config.PathTypeFile,
@@ -177,13 +178,13 @@ func TestBackupPathNonExistent(t *testing.T) {
 	}
 
 	// Test backup of non-existent file (should succeed but do nothing)
-	err := manager.BackupPath("testapp", configPath)
+	err := manager.BackupPath(constants.TestAppName, configPath)
 	if err != nil {
 		t.Errorf("BackupPath should not fail for non-existent file: %v", err)
 	}
 
 	// Verify no backup was created
-	backups, err := manager.ListBackups("testapp")
+	backups, err := manager.ListBackups(constants.TestAppName)
 	if err != nil {
 		t.Fatalf("Failed to list backups: %v", err)
 	}
@@ -215,7 +216,7 @@ func TestBackupPathSymlink(t *testing.T) {
 	}
 
 	// Create config path for symlink
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      testSymlink,
 		Destination: "link.conf",
 		Type:        config.PathTypeFile,
@@ -254,7 +255,7 @@ func TestRestorePath(t *testing.T) {
 		t.Fatalf("Failed to create original file: %v", err)
 	}
 
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      originalFile,
 		Destination: "original.conf",
 		Type:        config.PathTypeFile,
@@ -298,7 +299,7 @@ func TestRestorePathNonExistentBackup(t *testing.T) {
 
 	manager := NewManager(backupDir, homeDir, false)
 
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      filepath.Join(tempDir, "nonexistent.conf"),
 		Destination: "nonexistent.conf",
 		Type:        config.PathTypeFile,
@@ -341,7 +342,7 @@ func TestListBackups(t *testing.T) {
 			t.Fatalf("Failed to create test file %d: %v", i, err)
 		}
 
-		configPath := &config.ConfigPath{
+		configPath := &config.Path{
 			Source:      testFile,
 			Destination: "test" + string(rune('0'+i)) + ".conf",
 			Type:        config.PathTypeFile,
@@ -398,7 +399,7 @@ func TestCleanupBackups(t *testing.T) {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
 
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      testFile,
 		Destination: "test.conf",
 		Type:        config.PathTypeFile,
@@ -450,7 +451,7 @@ func TestValidateBackup(t *testing.T) {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
 
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      testFile,
 		Destination: "test.conf",
 		Type:        config.PathTypeFile,
@@ -570,7 +571,7 @@ func TestCalculateChecksum(t *testing.T) {
 
 	// Create test file with known content
 	testFile := filepath.Join(tempDir, "test.txt")
-	testContent := "Hello, World!"
+	testContent := constants.TestHelloWorld
 	err := os.WriteFile(testFile, []byte(testContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)
@@ -608,7 +609,7 @@ func TestCalculateSize(t *testing.T) {
 
 	// Test file size
 	testFile := filepath.Join(tempDir, "test.txt")
-	testContent := "Hello, World!"
+	testContent := constants.TestHelloWorld
 	err := os.WriteFile(testFile, []byte(testContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)
@@ -666,7 +667,7 @@ func BenchmarkBackupFile(b *testing.B) {
 		b.Fatalf("Failed to create test file: %v", err)
 	}
 
-	configPath := &config.ConfigPath{
+	configPath := &config.Path{
 		Source:      testFile,
 		Destination: "benchmark.txt",
 		Type:        config.PathTypeFile,

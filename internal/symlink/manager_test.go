@@ -7,9 +7,8 @@ import (
 	"testing"
 
 	"github.com/dotbrains/configsync/internal/config"
+	"github.com/dotbrains/configsync/internal/constants"
 )
-
-const testConfiguration = "test configuration"
 
 func TestNewManager(t *testing.T) {
 	homeDir := "/test/home"
@@ -55,7 +54,7 @@ func TestSyncAppEnabled(t *testing.T) {
 
 	// Create source file
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := testConfiguration
+	sourceContent := constants.TestConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -124,7 +123,7 @@ func TestSyncAppDisabled(t *testing.T) {
 
 	// Create source file
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := testConfiguration
+	sourceContent := constants.TestConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -163,7 +162,7 @@ func TestSyncAppDryRun(t *testing.T) {
 
 	// Create source file
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := testConfiguration
+	sourceContent := constants.TestConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -377,7 +376,7 @@ func TestUnsyncApp(t *testing.T) {
 
 	// Create and sync an app first
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := "test configuration"
+	sourceContent := constants.TestConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)
@@ -439,7 +438,7 @@ func TestUnsyncAppNotSynced(t *testing.T) {
 
 	// Create regular file (not synced)
 	sourceFile := filepath.Join(tempDir, "test.conf")
-	sourceContent := "test configuration"
+	sourceContent := constants.TestConfiguration
 	err := os.WriteFile(sourceFile, []byte(sourceContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to create source file: %v", err)

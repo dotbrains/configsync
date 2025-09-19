@@ -16,9 +16,9 @@ import (
 
 // AppDetector handles detection and configuration of macOS applications
 type AppDetector struct {
+	lastScanTime  time.Time
 	homeDir       string
 	installedApps []InstalledApp
-	lastScanTime  time.Time
 	cacheDuration time.Duration
 }
 
@@ -399,14 +399,14 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 	appConfig := config.NewAppConfig(app.Name, app.DisplayName)
 	appConfig.BundleID = app.BundleID
 
-	var foundPaths []ConfigPath
+	var foundPaths []localPath
 
 	// Pattern 1: Check for preferences in ~/Library/Preferences/
 	if app.BundleID != "" {
 		prefsPath := filepath.Join(d.homeDir, "Library", "Preferences", app.BundleID+".plist")
 		if util.PathExists(prefsPath) {
 			relPath := filepath.Join("Library", "Preferences", app.BundleID+".plist")
-			foundPaths = append(foundPaths, ConfigPath{
+			foundPaths = append(foundPaths, localPath{
 				Source:      prefsPath,
 				Destination: relPath,
 				Type:        config.PathTypeFile,
@@ -424,7 +424,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 	for _, appSupportPath := range appSupportPaths {
 		if util.PathExists(appSupportPath) {
 			relPath, _ := filepath.Rel(d.homeDir, appSupportPath)
-			foundPaths = append(foundPaths, ConfigPath{
+			foundPaths = append(foundPaths, localPath{
 				Source:      appSupportPath,
 				Destination: relPath,
 				Type:        config.PathTypeDirectory,
@@ -444,7 +444,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 		for _, containerPath := range containerPaths {
 			if util.PathExists(containerPath) {
 				relPath, _ := filepath.Rel(d.homeDir, containerPath)
-				foundPaths = append(foundPaths, ConfigPath{
+				foundPaths = append(foundPaths, localPath{
 					Source:      containerPath,
 					Destination: relPath,
 					Type:        config.PathTypeDirectory,
@@ -466,7 +466,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 		for _, dotfile := range potentialDotfiles {
 			if util.PathExists(dotfile) {
 				relPath, _ := filepath.Rel(d.homeDir, dotfile)
-				foundPaths = append(foundPaths, ConfigPath{
+				foundPaths = append(foundPaths, localPath{
 					Source:      dotfile,
 					Destination: relPath,
 					Type:        config.PathTypeFile,
@@ -476,7 +476,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 		}
 	}
 
-	// Convert ConfigPath to the expected PathInfo format
+	// Convert localPath to the expected Path format
 	for _, cp := range foundPaths {
 		appConfig.AddPath(cp.Source, cp.Destination, cp.Type, cp.Required)
 	}
@@ -489,8 +489,8 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 	return nil
 }
 
-// ConfigPath represents a configuration path (internal struct for smart detection)
-type ConfigPath struct {
+// localPath represents a configuration path (internal struct for smart detection)
+type localPath struct {
 	Source      string
 	Destination string
 	Type        config.PathType

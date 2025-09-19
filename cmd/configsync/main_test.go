@@ -26,9 +26,9 @@ func TestMainFunction(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		expectedOutput string
 		args           []string
 		expectError    bool
-		expectedOutput string
 	}{
 		{
 			name:           "Help command",

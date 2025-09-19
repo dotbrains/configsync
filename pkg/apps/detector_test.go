@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dotbrains/configsync/internal/config"
+	"github.com/dotbrains/configsync/internal/constants"
 )
 
 func TestNewAppDetector(t *testing.T) {
@@ -197,7 +198,7 @@ func TestRemoveDuplicateApps(t *testing.T) {
 
 	// Check that the app with version was kept for testapp1
 	for _, app := range result {
-		if app.Name == "testapp1" && app.Version != "1.0" {
+		if app.Name == constants.TestApp1Name && app.Version != "1.0" {
 			t.Error("Expected version 1.0 for testapp1, indicating the better duplicate was kept")
 		}
 	}
@@ -245,34 +246,34 @@ func TestRemoveDuplicateConfigs(t *testing.T) {
 		{
 			Name:     "testapp1",
 			BundleID: "com.test.app1",
-			Paths: []config.ConfigPath{
+			Paths: []config.Path{
 				{Source: "/test/path1", Destination: "path1"},
 			},
 		},
 		{
 			Name:     "testapp1", // Duplicate by bundle ID but with more paths
 			BundleID: "com.test.app1",
-			Paths: []config.ConfigPath{
+			Paths: []config.Path{
 				{Source: "/test/path1", Destination: "path1"},
 				{Source: "/test/path2", Destination: "path2"},
 			},
 		},
 		{
 			Name: "testapp2", // No bundle ID
-			Paths: []config.ConfigPath{
+			Paths: []config.Path{
 				{Source: "/test/path3", Destination: "path3"},
 			},
 		},
 		{
 			Name:     "testapp2", // Same name but with bundle ID, should be preferred
 			BundleID: "com.test.app2",
-			Paths: []config.ConfigPath{
+			Paths: []config.Path{
 				{Source: "/test/path3", Destination: "path3"},
 			},
 		},
 		{
 			Name: "testapp3", // Unique app
-			Paths: []config.ConfigPath{
+			Paths: []config.Path{
 				{Source: "/test/path4", Destination: "path4"},
 			},
 		},

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/dotbrains/configsync/internal/constants"
 )
 
 func TestNewManager(t *testing.T) {
@@ -47,10 +49,10 @@ func TestManagerWithRealFiles(t *testing.T) {
 	)
 
 	// Add a test app
-	testApp := NewAppConfig("testapp", "Test Application")
-	testApp.BundleID = "com.test.app"
+	testApp := NewAppConfig(constants.TestAppName, "Test Application")
+	testApp.BundleID = constants.TestBundleID
 	testApp.AddPath("/test/source", "test/dest", PathTypeFile, false)
-	cfg.Apps["testapp"] = testApp
+	cfg.Apps[constants.TestAppName] = testApp
 
 	// Test Save
 	err = manager.Save(cfg)
@@ -82,17 +84,17 @@ func TestManagerWithRealFiles(t *testing.T) {
 		t.Errorf("Expected 1 app, got %d", len(loadedCfg.Apps))
 	}
 
-	if _, exists := loadedCfg.Apps["testapp"]; !exists {
+	if _, exists := loadedCfg.Apps[constants.TestAppName]; !exists {
 		t.Error("Expected testapp to exist in loaded config")
 	}
 
-	loadedApp := loadedCfg.Apps["testapp"]
+	loadedApp := loadedCfg.Apps[constants.TestAppName]
 	if loadedApp.DisplayName != "Test Application" {
 		t.Errorf("Expected display name 'Test Application', got '%s'", loadedApp.DisplayName)
 	}
 
-	if loadedApp.BundleID != "com.test.app" {
-		t.Errorf("Expected bundle ID 'com.test.app', got '%s'", loadedApp.BundleID)
+	if loadedApp.BundleID != constants.TestBundleID {
+		t.Errorf("Expected bundle ID '%s', got '%s'", constants.TestBundleID, loadedApp.BundleID)
 	}
 
 	if len(loadedApp.Paths) != 1 {
@@ -100,7 +102,7 @@ func TestManagerWithRealFiles(t *testing.T) {
 	}
 }
 
-func TestManagerSaveLoadCycle(t *testing.T) {
+func TestManagerSaveLoadTimestamps(t *testing.T) {
 	tempDir := t.TempDir()
 	manager := NewManager(tempDir)
 
@@ -110,7 +112,7 @@ func TestManagerSaveLoadCycle(t *testing.T) {
 		t.Fatalf("Failed to create config directory: %v", err)
 	}
 
-	// Create a comprehensive configuration
+	// Create configuration with timestamps
 	cfg := NewDefaultConfig(
 		filepath.Join(tempDir, "store"),
 		filepath.Join(tempDir, "backups"),
@@ -118,65 +120,53 @@ func TestManagerSaveLoadCycle(t *testing.T) {
 	)
 
 	// Set timestamps
-	now := time.Now().Truncate(time.Second) // Truncate for comparison accuracy
+	now := time.Now().Truncate(time.Second)
 	cfg.CreatedAt = now
 	cfg.UpdatedAt = now
 	cfg.LastSync = now.Add(-1 * time.Hour)
 
-	// Add multiple apps with different configurations
-	apps := map[string]*AppConfig{
-		"vscode": {
-			Name:         "vscode",
-			DisplayName:  "Visual Studio Code",
-			BundleID:     "com.microsoft.VSCode",
-			Enabled:      true,
-			BackupBefore: true,
-			Paths: []ConfigPath{
-				{
-					Source:      "/test/vscode/settings.json",
-					Destination: "vscode/settings.json",
-					Type:        PathTypeFile,
-					Required:    false,
-					BackedUp:    true,
-					Synced:      true,
-					SyncedAt:    now,
-				},
-				{
-					Source:      "/test/vscode/snippets",
-					Destination: "vscode/snippets",
-					Type:        PathTypeDirectory,
-					Required:    false,
-					BackedUp:    false,
-					Synced:      false,
-				},
-			},
-			Metadata:   map[string]string{"version": "1.80.0"},
-			AddedAt:    now.Add(-2 * time.Hour),
-			LastSynced: now.Add(-30 * time.Minute),
-		},
-		"chrome": {
-			Name:         "chrome",
-			DisplayName:  "Google Chrome",
-			BundleID:     "com.google.Chrome",
-			Enabled:      false, // Disabled for testing
-			BackupBefore: true,
-			Paths: []ConfigPath{
-				{
-					Source:      "/test/chrome/preferences.json",
-					Destination: "chrome/preferences.json",
-					Type:        PathTypeFile,
-					Required:    true,
-					BackedUp:    true,
-					Synced:      false,
-				},
-			},
-			Metadata:   map[string]string{"version": "116.0.0"},
-			AddedAt:    now.Add(-1 * time.Hour),
-			LastSynced: time.Time{}, // Never synced
-		},
+	// Test save and load cycle for timestamps
+	err = manager.Save(cfg)
+	if err != nil {
+		t.Fatalf("Failed to save config: %v", err)
 	}
 
-	cfg.Apps = apps
+	loadedCfg, err := manager.Load()
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	// Verify timestamps are preserved
+	if !loadedCfg.CreatedAt.Equal(cfg.CreatedAt) {
+		t.Errorf("CreatedAt mismatch: expected %v, got %v", cfg.CreatedAt, loadedCfg.CreatedAt)
+	}
+
+	if !loadedCfg.LastSync.Equal(cfg.LastSync) {
+		t.Errorf("LastSync mismatch: expected %v, got %v", cfg.LastSync, loadedCfg.LastSync)
+	}
+}
+
+func TestManagerSaveLoadMultipleApps(t *testing.T) {
+	tempDir := t.TempDir()
+	manager := NewManager(tempDir)
+
+	// Create config directory
+	err := os.MkdirAll(manager.GetConfigDir(), 0755)
+	if err != nil {
+		t.Fatalf("Failed to create config directory: %v", err)
+	}
+
+	cfg := NewDefaultConfig(
+		filepath.Join(tempDir, "store"),
+		filepath.Join(tempDir, "backups"),
+		filepath.Join(tempDir, "logs"),
+	)
+
+	now := time.Now().Truncate(time.Second)
+
+	// Add test apps
+	cfg.Apps["vscode"] = createTestApp("vscode", "Visual Studio Code", "com.microsoft.VSCode", true, now)
+	cfg.Apps["chrome"] = createTestApp("chrome", "Google Chrome", "com.google.Chrome", false, now)
 
 	// Test save and load cycle
 	err = manager.Save(cfg)
@@ -189,18 +179,93 @@ func TestManagerSaveLoadCycle(t *testing.T) {
 		t.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Verify all fields are preserved
-	if !loadedCfg.CreatedAt.Equal(cfg.CreatedAt) {
-		t.Errorf("CreatedAt mismatch: expected %v, got %v", cfg.CreatedAt, loadedCfg.CreatedAt)
+	// Verify apps are preserved
+	verifyAppsEqual(t, cfg.Apps, loadedCfg.Apps)
+}
+
+func TestManagerSaveLoadAppPaths(t *testing.T) {
+	tempDir := t.TempDir()
+	manager := NewManager(tempDir)
+
+	// Create config directory
+	err := os.MkdirAll(manager.GetConfigDir(), 0755)
+	if err != nil {
+		t.Fatalf("Failed to create config directory: %v", err)
 	}
 
-	if !loadedCfg.LastSync.Equal(cfg.LastSync) {
-		t.Errorf("LastSync mismatch: expected %v, got %v", cfg.LastSync, loadedCfg.LastSync)
+	cfg := NewDefaultConfig(
+		filepath.Join(tempDir, "store"),
+		filepath.Join(tempDir, "backups"),
+		filepath.Join(tempDir, "logs"),
+	)
+
+	now := time.Now().Truncate(time.Second)
+	testApp := createTestAppWithPaths("testapp", "Test App", now)
+	cfg.Apps["testapp"] = testApp
+
+	// Test save and load cycle
+	err = manager.Save(cfg)
+	if err != nil {
+		t.Fatalf("Failed to save config: %v", err)
 	}
 
-	// Verify apps
-	for appName, originalApp := range cfg.Apps {
-		loadedApp, exists := loadedCfg.Apps[appName]
+	loadedCfg, err := manager.Load()
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	// Verify paths are preserved
+	loadedApp := loadedCfg.Apps["testapp"]
+	verifyPathsEqual(t, testApp.Paths, loadedApp.Paths)
+}
+
+// Helper functions for test refactoring
+func createTestApp(name, displayName, bundleID string, enabled bool, now time.Time) *AppConfig {
+	return &AppConfig{
+		Name:         name,
+		DisplayName:  displayName,
+		BundleID:     bundleID,
+		Enabled:      enabled,
+		BackupBefore: true,
+		Paths:        []Path{},
+		Metadata:     map[string]string{"version": "1.0.0"},
+		AddedAt:      now.Add(-1 * time.Hour),
+		LastSynced:   now.Add(-30 * time.Minute),
+	}
+}
+
+func createTestAppWithPaths(name, displayName string, now time.Time) *AppConfig {
+	return &AppConfig{
+		Name:        name,
+		DisplayName: displayName,
+		Enabled:     true,
+		Paths: []Path{
+			{
+				Source:      "/test/settings.json",
+				Destination: "test/settings.json",
+				Type:        PathTypeFile,
+				Required:    false,
+				BackedUp:    true,
+				Synced:      true,
+				SyncedAt:    now,
+			},
+			{
+				Source:      "/test/config",
+				Destination: "test/config",
+				Type:        PathTypeDirectory,
+				Required:    false,
+				BackedUp:    false,
+				Synced:      false,
+			},
+		},
+		Metadata: map[string]string{"version": "1.80.0"},
+		AddedAt:  now.Add(-2 * time.Hour),
+	}
+}
+
+func verifyAppsEqual(t *testing.T, original, loaded map[string]*AppConfig) {
+	for appName, originalApp := range original {
+		loadedApp, exists := loaded[appName]
 		if !exists {
 			t.Errorf("App %s not found in loaded config", appName)
 			continue
@@ -209,35 +274,25 @@ func TestManagerSaveLoadCycle(t *testing.T) {
 		if loadedApp.Enabled != originalApp.Enabled {
 			t.Errorf("App %s enabled mismatch: expected %t, got %t", appName, originalApp.Enabled, loadedApp.Enabled)
 		}
+	}
+}
 
-		if len(loadedApp.Paths) != len(originalApp.Paths) {
-			t.Errorf("App %s paths count mismatch: expected %d, got %d", appName, len(originalApp.Paths), len(loadedApp.Paths))
+func verifyPathsEqual(t *testing.T, original, loaded []Path) {
+	if len(loaded) != len(original) {
+		t.Errorf("Paths count mismatch: expected %d, got %d", len(original), len(loaded))
+		return
+	}
+
+	for i, originalPath := range original {
+		loadedPath := loaded[i]
+		if loadedPath.Source != originalPath.Source {
+			t.Errorf("Path source mismatch: expected %s, got %s", originalPath.Source, loadedPath.Source)
 		}
-
-		for i, originalPath := range originalApp.Paths {
-			if i >= len(loadedApp.Paths) {
-				break
-			}
-			loadedPath := loadedApp.Paths[i]
-
-			if loadedPath.Source != originalPath.Source {
-				t.Errorf("Path source mismatch: expected %s, got %s", originalPath.Source, loadedPath.Source)
-			}
-
-			if loadedPath.Synced != originalPath.Synced {
-				t.Errorf("Path synced mismatch: expected %t, got %t", originalPath.Synced, loadedPath.Synced)
-			}
-
-			if loadedPath.BackedUp != originalPath.BackedUp {
-				t.Errorf("Path backed up mismatch: expected %t, got %t", originalPath.BackedUp, loadedPath.BackedUp)
-			}
+		if loadedPath.Synced != originalPath.Synced {
+			t.Errorf("Path synced mismatch: expected %t, got %t", originalPath.Synced, loadedPath.Synced)
 		}
-
-		// Verify metadata
-		for key, value := range originalApp.Metadata {
-			if loadedValue, exists := loadedApp.Metadata[key]; !exists || loadedValue != value {
-				t.Errorf("App %s metadata mismatch for key %s: expected %s, got %s", appName, key, value, loadedValue)
-			}
+		if loadedPath.BackedUp != originalPath.BackedUp {
+			t.Errorf("Path backed up mismatch: expected %t, got %t", originalPath.BackedUp, loadedPath.BackedUp)
 		}
 	}
 }
@@ -292,7 +347,7 @@ func TestManagerSaveError(t *testing.T) {
 	_ = os.Chmod(configDir, 0755)
 }
 
-func TestManagerMethods(t *testing.T) {
+func TestManagerInitialize(t *testing.T) {
 	tempDir := t.TempDir()
 	manager := NewManager(tempDir)
 
@@ -315,7 +370,7 @@ func TestManagerMethods(t *testing.T) {
 	}
 
 	for _, dir := range expectedDirs {
-		if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
 			t.Errorf("Expected directory %s to exist", dir)
 		}
 	}
@@ -323,6 +378,17 @@ func TestManagerMethods(t *testing.T) {
 	// Test that config file was created
 	if !manager.ConfigExists() {
 		t.Error("Expected config file to exist after initialize")
+	}
+}
+
+func TestManagerAppOperations(t *testing.T) {
+	tempDir := t.TempDir()
+	manager := NewManager(tempDir)
+
+	// Initialize first
+	err := manager.Initialize()
+	if err != nil {
+		t.Fatalf("Failed to initialize: %v", err)
 	}
 
 	// Test AddApp
@@ -360,6 +426,32 @@ func TestManagerMethods(t *testing.T) {
 		t.Error("Expected testapp to exist in apps list")
 	}
 
+	// Test RemoveApp
+	err = manager.RemoveApp("testapp")
+	if err != nil {
+		t.Fatalf("Failed to remove app: %v", err)
+	}
+
+	// Verify app was removed
+	apps, err = manager.ListApps()
+	if err != nil {
+		t.Fatalf("Failed to list apps after removal: %v", err)
+	}
+	if len(apps) != 0 {
+		t.Errorf("Expected 0 apps after removal, got %d", len(apps))
+	}
+}
+
+func TestManagerPaths(t *testing.T) {
+	tempDir := t.TempDir()
+	manager := NewManager(tempDir)
+
+	// Initialize first
+	err := manager.Initialize()
+	if err != nil {
+		t.Fatalf("Failed to initialize: %v", err)
+	}
+
 	// Test GetStorePath
 	storePath, err := manager.GetStorePath()
 	if err != nil {
@@ -378,6 +470,17 @@ func TestManagerMethods(t *testing.T) {
 	expectedBackupPath := filepath.Join(tempDir, ".configsync", "backups")
 	if backupPath != expectedBackupPath {
 		t.Errorf("Expected backup path %s, got %s", expectedBackupPath, backupPath)
+	}
+}
+
+func TestManagerSettings(t *testing.T) {
+	tempDir := t.TempDir()
+	manager := NewManager(tempDir)
+
+	// Initialize first
+	err := manager.Initialize()
+	if err != nil {
+		t.Fatalf("Failed to initialize: %v", err)
 	}
 
 	// Test GetSettings
@@ -408,6 +511,17 @@ func TestManagerMethods(t *testing.T) {
 	if !updatedSettings.DryRun {
 		t.Error("Expected DryRun to be true after update")
 	}
+}
+
+func TestManagerSyncOperations(t *testing.T) {
+	tempDir := t.TempDir()
+	manager := NewManager(tempDir)
+
+	// Initialize first
+	err := manager.Initialize()
+	if err != nil {
+		t.Fatalf("Failed to initialize: %v", err)
+	}
 
 	// Test UpdateLastSync
 	err = manager.UpdateLastSync()
@@ -422,21 +536,6 @@ func TestManagerMethods(t *testing.T) {
 	}
 	if cfg.LastSync.IsZero() {
 		t.Error("Expected LastSync to be set")
-	}
-
-	// Test RemoveApp
-	err = manager.RemoveApp("testapp")
-	if err != nil {
-		t.Fatalf("Failed to remove app: %v", err)
-	}
-
-	// Verify app was removed
-	apps, err = manager.ListApps()
-	if err != nil {
-		t.Fatalf("Failed to list apps after removal: %v", err)
-	}
-	if len(apps) != 0 {
-		t.Errorf("Expected 0 apps after removal, got %d", len(apps))
 	}
 }
 

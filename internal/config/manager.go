@@ -24,9 +24,9 @@ const (
 
 // Manager handles configuration file operations
 type Manager struct {
+	config     *Config
 	configDir  string
 	configPath string
-	config     *Config
 }
 
 // NewManager creates a new configuration manager
