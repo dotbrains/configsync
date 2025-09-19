@@ -1,0 +1,148 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-1.22-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-1.22-
+
+    - name: Run tests
+      run: go test -v ./...
+
+    - name: Get version
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Build binaries
+      run: |
+        mkdir -p bin
+        
+        # Build for macOS Intel
+        GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-amd64 ./cmd/configsync
+        
+        # Build for macOS Apple Silicon
+        GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION }}" -o bin/configsync-darwin-arm64 ./cmd/configsync
+        
+        # Create universal binary
+        lipo -create -output bin/configsync-darwin-universal bin/configsync-darwin-amd64 bin/configsync-darwin-arm64
+        
+        # Create checksums
+        cd bin
+        shasum -a 256 * > checksums.txt
+        cd ..
+
+    - name: Create tarball
+      run: |
+        mkdir -p dist
+        
+        # Create tarballs for each architecture
+        tar -czf dist/configsync-${{ steps.version.outputs.VERSION }}-darwin-amd64.tar.gz -C bin configsync-darwin-amd64
+        tar -czf dist/configsync-${{ steps.version.outputs.VERSION }}-darwin-arm64.tar.gz -C bin configsync-darwin-arm64
+        tar -czf dist/configsync-${{ steps.version.outputs.VERSION }}-darwin-universal.tar.gz -C bin configsync-darwin-universal
+        
+        # Copy checksums
+        cp bin/checksums.txt dist/
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          # Extract changelog for this version
+          awk "/^## \[${{ steps.version.outputs.VERSION }}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > /tmp/changelog.txt || echo "No changelog found for this version" > /tmp/changelog.txt
+        else
+          echo "See the commits for changes in this release." > /tmp/changelog.txt
+        fi
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        cat /tmp/changelog.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        name: ConfigSync ${{ steps.version.outputs.VERSION }}
+        body: |
+          ## ConfigSync ${{ steps.version.outputs.VERSION }}
+          
+          ### Installation
+          
+          #### macOS (Homebrew - coming soon)
+          ```bash
+          brew install dotbrains/tap/configsync
+          ```
+          
+          #### macOS (Manual Installation)
+          ```bash
+          # Download and install universal binary (works on both Intel and Apple Silicon)
+          curl -L https://github.com/dotbrains/configsync/releases/download/${{ steps.version.outputs.VERSION }}/configsync-${{ steps.version.outputs.VERSION }}-darwin-universal.tar.gz | tar -xz
+          sudo mv configsync-darwin-universal /usr/local/bin/configsync
+          chmod +x /usr/local/bin/configsync
+          ```
+          
+          #### Verify Installation
+          ```bash
+          configsync --version
+          configsync --help
+          ```
+          
+          ### Quick Start
+          ```bash
+          # Initialize ConfigSync
+          configsync init
+          
+          # Add applications
+          configsync add git vscode Terminal
+          
+          # Sync configurations
+          configsync sync
+          
+          # Check status
+          configsync status
+          ```
+          
+          ### Changes
+          ${{ steps.changelog.outputs.CHANGELOG }}
+          
+          ### Checksums
+          See `checksums.txt` for SHA256 checksums of all binaries.
+        files: |
+          dist/*
+        draft: false
+        prerelease: false
+
+  # Optional: Update Homebrew formula (if you plan to create one)
+  # homebrew:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: startsWith(github.ref, 'refs/tags/v')
+  #   steps:
+  #   - name: Update Homebrew formula
+  #     uses: dawidd6/action-homebrew-bump-formula@v3
+  #     with:
+  #       token: ${{ secrets.HOMEBREW_TOKEN }}
+  #       formula: configsync

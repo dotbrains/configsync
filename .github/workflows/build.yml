@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-1.22-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-1.22-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Build for macOS Intel
+      run: GOOS=darwin GOARCH=amd64 go build -o bin/configsync-darwin-amd64 ./cmd/configsync
+
+    - name: Build for macOS Apple Silicon  
+      run: GOOS=darwin GOARCH=arm64 go build -o bin/configsync-darwin-arm64 ./cmd/configsync
+
+    - name: Create universal binary
+      run: |
+        mkdir -p bin
+        lipo -create -output bin/configsync-darwin-universal bin/configsync-darwin-amd64 bin/configsync-darwin-arm64
+
+    - name: Test binary
+      run: |
+        chmod +x bin/configsync-darwin-universal
+        ./bin/configsync-darwin-universal --help
+        ./bin/configsync-darwin-universal --version
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      if: github.event_name == 'push'
+      with:
+        name: configsync-binaries-${{ github.sha }}
+        path: bin/
+        retention-days: 7
