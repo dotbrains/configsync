@@ -666,6 +666,107 @@ ConfigSync maintains high code quality with comprehensive test coverage:
 - **Non-Destructive Discovery**: Discovery mode only scans and reports, never modifies files
 - **Comprehensive Logging**: Detailed operation logs for troubleshooting
 
+## Documentation
+
+ConfigSync has comprehensive documentation available at **[dotbrains.github.io/configsync](https://dotbrains.github.io/configsync/)**
+
+### Available Documentation
+
+- **[Installation Guide](https://dotbrains.github.io/configsync/installation/)** - Complete installation instructions for all methods
+- **[Getting Started](https://dotbrains.github.io/configsync/getting-started/)** - Step-by-step tutorial for new users
+- **[CLI Reference](https://dotbrains.github.io/configsync/cli-reference/)** - Complete command-line documentation
+- **[Contributing Guide](https://dotbrains.github.io/configsync/contributing/)** - How to contribute to the project
+- **[Documentation Hub](https://dotbrains.github.io/configsync/docs/)** - Organized access to all documentation
+
+The documentation site features:
+- **Professional Design** - Modern, responsive layout that works on all devices
+- **Interactive Examples** - Code blocks with syntax highlighting and copy-to-clipboard
+- **Comprehensive Coverage** - Installation, usage, CLI reference, and contribution guidelines
+- **Mobile Friendly** - Optimized for reading on phones and tablets
+- **Search Friendly** - SEO optimized for better discoverability
+
+### Local Documentation Development
+
+The documentation is built using Jekyll and can be run locally for development:
+
+#### Prerequisites
+- **Ruby 2.6+** (macOS includes Ruby by default)
+- **Bundler** (`gem install bundler` if not installed)
+
+#### Setup and Running
+```bash
+# Navigate to documentation directory
+cd docs
+
+# Install Jekyll and dependencies
+bundle install
+
+# Start local development server
+bundle exec jekyll serve --incremental
+
+# View site at: http://127.0.0.1:4000/configsync/
+```
+
+#### Development Workflow
+- **Live Reload**: Changes are automatically rebuilt and visible after browser refresh
+- **Incremental Builds**: Only changed files are rebuilt for faster development
+- **Local Testing**: Test all features including navigation, code highlighting, and responsive design
+
+#### Useful Development Commands
+```bash
+# Serve with custom port
+bundle exec jekyll serve --port 4001
+
+# Build without serving (for testing)
+bundle exec jekyll build
+
+# Clean build files
+bundle exec jekyll clean
+
+# Serve with drafts (if using _drafts folder)
+bundle exec jekyll serve --drafts
+```
+
+#### Documentation Structure
+```
+docs/
+├── _config.yml              # Jekyll configuration
+├── _layouts/
+│   └── default.html         # Main page template
+├── _includes/
+│   ├── header.html          # Navigation header
+│   └── footer.html          # Site footer
+├── assets/
+│   ├── css/style.css        # Custom styling
+│   └── js/main.js          # Interactive features
+├── index.md                 # Homepage
+├── installation.md          # Installation guide
+├── getting-started.md       # Tutorial
+├── cli-reference.md         # CLI documentation
+├── contributing.md          # Contribution guide
+├── docs.md                  # Documentation hub
+└── Gemfile                  # Jekyll dependencies
+```
+
+#### Contributing to Documentation
+- **Edit Markdown files** in the `docs/` directory
+- **Test locally** before submitting pull requests
+- **Follow style guide** for consistency
+- **Update navigation** in `_config.yml` if adding new pages
+
+#### GitHub Pages Deployment
+The documentation automatically deploys to GitHub Pages when changes are pushed to the main branch:
+1. **Push changes** to the main branch
+2. **GitHub Actions** builds the Jekyll site
+3. **Site updates** at [dotbrains.github.io/configsync](https://dotbrains.github.io/configsync/)
+4. **Monitor deployment** in the repository's Actions tab
+
+### Documentation Feedback
+Found an issue with the documentation?
+- **Report bugs** via [GitHub Issues](https://github.com/dotbrains/configsync/issues)
+- **Suggest improvements** via [GitHub Discussions](https://github.com/dotbrains/configsync/discussions)
+- **Submit fixes** via pull requests
+
 ## Contributing
 
 Contributions are welcome! Please see our [contribution guidelines](CONTRIBUTING.md) for details.
