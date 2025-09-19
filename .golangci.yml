@@ -9,8 +9,6 @@ linters-settings:
       - fieldalignment
   gocyclo:
     min-complexity: 15
-  revive:
-    min-confidence: 0.8
   dupl:
     threshold: 100
   goconst:
