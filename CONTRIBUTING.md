@@ -88,7 +88,7 @@ func TestNewFeature(t *testing.T) {
         {"valid input", "test", "expected", false},
         {"invalid input", "", "", true},
     }
-    
+
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             result, err := NewFeature(tt.input)
@@ -172,11 +172,68 @@ Fixes #123
 
 ### Release Process
 
-Releases are automated through GitHub Actions when a tag is pushed:
+ConfigSync uses a hybrid automated/manual release process. See [RELEASE.md](RELEASE.md) for detailed documentation.
 
-1. Update CHANGELOG.md with release notes
-2. Create and push a new tag: `git tag v1.2.3 && git push origin v1.2.3`
-3. GitHub Actions will build and create a release automatically
+#### Quick Release Steps
+
+1. **Prepare Release:**
+   ```bash
+   # Update CHANGELOG.md with release notes
+   vim CHANGELOG.md
+   git add CHANGELOG.md
+   git commit -m "chore: prepare v1.2.3 release"
+   git push origin main
+   ```
+
+2. **Create Release Tag:**
+   ```bash
+   git tag v1.2.3
+   git push origin v1.2.3
+   ```
+
+3. **Monitor Workflow:**
+   - GitHub Actions will automatically build and create a GitHub release
+   - Monitor the workflow: `gh run list --workflow=Release --limit=5`
+
+4. **Handle Homebrew Update:**
+   - **If automation succeeds:** ✅ Done!
+   - **If automation fails:** Use the manual script:
+   ```bash
+   ./scripts/update-homebrew.sh v1.2.3
+   ```
+
+#### Release Workflow Features
+
+- **Automated GitHub Release:** Builds binaries, creates release, generates checksums
+- **Homebrew Automation:** Attempts to update formula automatically
+- **Manual Fallback:** Reliable script when automation fails
+- **Error Resilience:** Workflow continues even if Homebrew update fails
+- **Testing:** Both installation methods verified
+
+#### Manual Homebrew Updates
+
+If the automated Homebrew formula update fails (common with third-party actions), use the manual script:
+
+```bash
+# Run the automated manual update script
+./scripts/update-homebrew.sh v1.2.3
+```
+
+This script will:
+1. Clone the Homebrew tap repository
+2. Download the release binary and calculate SHA256
+3. Update the formula with new version, URL, and checksum
+4. Commit and push the changes
+5. Test the formula (optional)
+
+#### Troubleshooting
+
+- **Version conflicts:** The script handles them automatically with force updates
+- **Cache issues:** Manual script avoids GitHub Actions cache problems
+- **Checksum errors:** Script calculates checksums directly from release assets
+- **Workflow failures:** Use `gh run view <run-id>` to diagnose issues
+
+For complete release documentation, see [RELEASE.md](RELEASE.md).
 
 ## Questions?
 
