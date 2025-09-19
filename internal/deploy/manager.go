@@ -1,3 +1,4 @@
+// Package deploy provides functionality for exporting and deploying configuration bundles.
 package deploy
 
 import (
@@ -88,7 +89,12 @@ func (m *Manager) ExportBundle(bundlePath string, apps []string, configManager *
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			// Log error but don't fail the operation
+			fmt.Printf("Warning: failed to clean up temporary directory: %v\n", err)
+		}
+	}()
 
 	// Save bundle metadata
 	bundleFile := filepath.Join(tempDir, "bundle.yaml")
@@ -265,7 +271,7 @@ func (m *Manager) DeployBundle(bundle *config.DeploymentBundle, bundleDir string
 		for _, name := range failed {
 			fmt.Printf("  - %s\n", name)
 		}
-		
+
 		if len(deployed) == 0 {
 			return fmt.Errorf("failed to deploy any applications")
 		}
@@ -356,7 +362,7 @@ func (m *Manager) getUserInfo() string {
 
 func (m *Manager) getSystemInfo() string {
 	hostname, _ := os.Hostname()
-	return fmt.Sprintf("%s", hostname)
+	return hostname
 }
 
 func (m *Manager) getFileSize(path string) (int64, error) {
@@ -385,7 +391,11 @@ func (m *Manager) copyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer srcFile.Close()
+	defer func() {
+		if err := srcFile.Close(); err != nil {
+			fmt.Printf("Warning: failed to close source file: %v\n", err)
+		}
+	}()
 
 	dstFile, err := os.Create(dst)
 	if err != nil {
@@ -462,7 +472,7 @@ func (m *Manager) validateBundle(bundle *config.DeploymentBundle, bundleDir stri
 	// Validate each app
 	for appName, appConfig := range bundle.Apps {
 		appFilesDir := filepath.Join(filesDir, appName)
-		
+
 		for _, path := range appConfig.Paths {
 			if path.Required {
 				bundlePath := filepath.Join(appFilesDir, path.Destination)

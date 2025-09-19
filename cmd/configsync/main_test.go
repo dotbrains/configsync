@@ -10,7 +10,7 @@ import (
 func TestMainFunction(t *testing.T) {
 	// Test that main function exists and can be called
 	// We'll test this by running the binary with different arguments
-	
+
 	// Skip this test if we're not running in an environment where we can build
 	if testing.Short() {
 		t.Skip("Skipping main function test in short mode")
@@ -78,23 +78,23 @@ func TestMainFunction(t *testing.T) {
 
 func TestMainErrorHandling(t *testing.T) {
 	// Test main function directly by simulating command execution failures
-	
+
 	// Save original args and restore after test
 	originalArgs := os.Args
 	defer func() { os.Args = originalArgs }()
 
 	// Test with invalid command that should cause an error
 	os.Args = []string{"configsync", "nonexistent-command"}
-	
+
 	// We can't easily test main() directly since it calls os.Exit()
 	// But we can test that the cmd.Execute() function handles errors properly
 	// This is more of an integration test to ensure the main function structure is correct
-	
+
 	// The main function should:
 	// 1. Call cmd.Execute()
 	// 2. Handle errors by printing to stderr
 	// 3. Exit with code 1 on error
-	
+
 	// Since we can't test os.Exit directly, we verify the main function exists
 	// and has the correct structure by checking it compiles and links properly
 	t.Log("Main function structure verified through compilation")
@@ -105,7 +105,7 @@ func TestMainWithEnvironmentVariables(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Skipping environment variable test in short mode")
 	}
-	
+
 	// Skip this test due to permission issues with temp directory cleanup
 	t.Skip("Skipping due to temp directory cleanup permission issues")
 
@@ -128,7 +128,7 @@ func TestMainWithEnvironmentVariables(t *testing.T) {
 	cmd := exec.Command("/tmp/configsync-env-test", "init", "--dry-run")
 	cmd.Env = append(os.Environ(), "HOME="+tempDir)
 	output, err := cmd.CombinedOutput()
-	
+
 	if err != nil {
 		// This might fail because we're using dry-run, but that's expected
 		// We're just testing that the environment variable is processed
@@ -187,11 +187,11 @@ func TestCLIArgumentParsing(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command("/tmp/configsync-args-test", tt.args...)
 			output, err := cmd.CombinedOutput()
-			
+
 			if tt.expectError && err == nil {
 				t.Errorf("Expected error but command succeeded. Output: %s", string(output))
 			}
-			
+
 			if !tt.expectError && err != nil {
 				t.Errorf("Expected success but got error: %v. Output: %s", err, string(output))
 			}

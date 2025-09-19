@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/dotbrains/configsync/internal/config"
 	"github.com/dotbrains/configsync/internal/symlink"
+	"github.com/spf13/cobra"
 )
 
 // removeCmd represents the remove command
@@ -113,7 +113,7 @@ func runRemove(cmd *cobra.Command, args []string) error {
 		for _, name := range failed {
 			fmt.Printf("  - %s\n", name)
 		}
-		
+
 		if len(successful) == 0 {
 			return fmt.Errorf("failed to remove any applications")
 		}

@@ -24,7 +24,7 @@ func executeCommand(cmd *cobra.Command, args ...string) (output string, err erro
 	cmd.SetOut(buf)
 	cmd.SetErr(buf)
 	cmd.SetArgs(args)
-	
+
 	err = cmd.Execute()
 	return buf.String(), err
 }
@@ -34,11 +34,11 @@ func setupTestEnv(t *testing.T) (string, func()) {
 	tempDir := t.TempDir()
 	originalHome := homeDir
 	originalConfigDir := configDir
-	
+
 	// Set test directories
 	homeDir = tempDir
 	configDir = filepath.Join(tempDir, ".configsync")
-	
+
 	return tempDir, func() {
 		homeDir = originalHome
 		configDir = originalConfigDir
@@ -62,15 +62,15 @@ func TestRootCommand(t *testing.T) {
 	if rootCmd == nil {
 		t.Fatal("rootCmd should be defined")
 	}
-	
+
 	if rootCmd.Use != "configsync" {
 		t.Errorf("Expected root command use to be 'configsync', got '%s'", rootCmd.Use)
 	}
-	
+
 	if !strings.Contains(rootCmd.Short, "macOS application") {
 		t.Errorf("Expected root command short description to mention macOS, got: %s", rootCmd.Short)
 	}
-	
+
 	if rootCmd.Version != "1.0.0" {
 		t.Errorf("Expected version to be '1.0.0', got '%s'", rootCmd.Version)
 	}
@@ -79,8 +79,8 @@ func TestRootCommand(t *testing.T) {
 // Test command structure and metadata
 func TestCommandStructure(t *testing.T) {
 	tests := []struct {
-		cmd          *cobra.Command
-		name         string
+		cmd            *cobra.Command
+		name           string
 		shouldHaveRunE bool
 	}{
 		{initCmd, "init", true},
@@ -101,19 +101,19 @@ func TestCommandStructure(t *testing.T) {
 			if tt.cmd == nil {
 				t.Fatalf("Command %s should be defined", tt.name)
 			}
-			
+
 			if tt.cmd.Use == "" {
 				t.Errorf("Command %s should have Use defined", tt.name)
 			}
-			
+
 			if tt.cmd.Short == "" {
 				t.Errorf("Command %s should have Short description", tt.name)
 			}
-			
+
 			if tt.cmd.Long == "" {
 				t.Errorf("Command %s should have Long description", tt.name)
 			}
-			
+
 			if tt.shouldHaveRunE && tt.cmd.RunE == nil {
 				t.Errorf("Command %s should have RunE function", tt.name)
 			}
@@ -124,7 +124,7 @@ func TestCommandStructure(t *testing.T) {
 // Test that all expected commands are registered
 func TestCommandRegistration(t *testing.T) {
 	expectedCommands := []string{
-		"init", "add", "remove", "sync", "status", 
+		"init", "add", "remove", "sync", "status",
 		"discover", "backup", "restore", "export", "import", "deploy",
 	}
 
@@ -207,7 +207,7 @@ func TestInitConfig(t *testing.T) {
 	originalHome := homeDir
 	originalConfigDir := configDir
 	originalHomeEnv := os.Getenv("HOME")
-	
+
 	defer func() {
 		homeDir = originalHome
 		configDir = originalConfigDir
@@ -218,13 +218,13 @@ func TestInitConfig(t *testing.T) {
 	homeDir = ""
 	testHome := "/test/home/dir"
 	os.Setenv("HOME", testHome)
-	
+
 	initConfig()
-	
+
 	if homeDir != testHome {
 		t.Errorf("Expected homeDir to be set to %s, got %s", testHome, homeDir)
 	}
-	
+
 	expectedConfigDir := filepath.Join(testHome, ".configsync")
 	if configDir != expectedConfigDir {
 		t.Errorf("Expected configDir to be %s, got %s", expectedConfigDir, configDir)
@@ -233,9 +233,9 @@ func TestInitConfig(t *testing.T) {
 	// Test with homeDir already set
 	customHome := "/custom/home"
 	homeDir = customHome
-	
+
 	initConfig()
-	
+
 	if homeDir != customHome {
 		t.Errorf("Expected homeDir to remain %s, got %s", customHome, homeDir)
 	}
@@ -255,12 +255,12 @@ func TestCommandHelp(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name+"_help", func(t *testing.T) {
 			output, err := executeCommand(tt.cmd, "--help")
-			
+
 			// Help should always work for root command
 			if err != nil && tt.name == "root" {
 				t.Errorf("Help for %s command should not error: %v", tt.name, err)
 			}
-			
+
 			// Root command help output should contain command description
 			if tt.name == "root" && len(output) < 10 {
 				t.Errorf("Help for %s command should produce meaningful output, got: %d chars", tt.name, len(output))
@@ -276,18 +276,18 @@ func TestInitCommandBasic(t *testing.T) {
 
 	// This tests that the init command can be called without panicking
 	// We can't easily test the full functionality without mocking the config manager
-	
+
 	// Test that command structure is correct
 	if initCmd.RunE == nil {
 		t.Error("init command should have RunE function")
 	}
-	
+
 	// Test help works
 	_, err := executeCommand(initCmd, "--help")
 	if err != nil {
 		t.Errorf("init help should not error: %v", err)
 	}
-	
+
 	// Verify test directory setup
 	if !strings.Contains(testDir, "Test") {
 		t.Errorf("Expected test directory, got %s", testDir)
@@ -303,7 +303,7 @@ func TestCommandArgumentValidation(t *testing.T) {
 	if importCmd.Args == nil {
 		t.Error("import command should have argument validation")
 	}
-	
+
 	// Test that import command requires exactly one argument
 	// This is defined as cobra.ExactArgs(1) in the source
 	expectedArgs := importCmd.Args
@@ -318,16 +318,16 @@ func TestFlagDefaults(t *testing.T) {
 	verbose = false
 	dryRun = false
 	homeDir = ""
-	
+
 	// Test that defaults are correct
 	if verbose != false {
 		t.Error("verbose should default to false")
 	}
-	
+
 	if dryRun != false {
 		t.Error("dryRun should default to false")
 	}
-	
+
 	// Test command-specific defaults
 	if backupKeepDays != 30 {
 		t.Error("backupKeepDays should default to 30")
@@ -337,9 +337,9 @@ func TestFlagDefaults(t *testing.T) {
 // Test command usage strings
 func TestCommandUsage(t *testing.T) {
 	tests := []struct {
-		cmd          *cobra.Command
-		name         string
-		expectedUse  string
+		cmd         *cobra.Command
+		name        string
+		expectedUse string
 	}{
 		{addCmd, "add", "add [app1] [app2] ..."},
 		{removeCmd, "remove", "remove [app1] [app2] ..."},
@@ -352,7 +352,7 @@ func TestCommandUsage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name+"_usage", func(t *testing.T) {
 			if tt.cmd.Use != tt.expectedUse {
-				t.Errorf("Expected %s command use to be '%s', got '%s'", 
+				t.Errorf("Expected %s command use to be '%s', got '%s'",
 					tt.name, tt.expectedUse, tt.cmd.Use)
 			}
 		})
@@ -365,12 +365,12 @@ func TestCommandChain(t *testing.T) {
 	if rootCmd.Commands() == nil {
 		t.Error("Root command should have subcommands")
 	}
-	
+
 	commandCount := len(rootCmd.Commands())
 	if commandCount < 10 { // We expect at least 11 main commands plus completion and help
 		t.Errorf("Expected at least 10 commands, got %d", commandCount)
 	}
-	
+
 	// Test that each command has proper parent relationship
 	for _, cmd := range rootCmd.Commands() {
 		if cmd.Parent() != rootCmd {
@@ -389,7 +389,7 @@ func TestVersionOutput(t *testing.T) {
 			t.Skipf("Version command not available: %v", err)
 		}
 	}
-	
+
 	// Version output might come in different formats
 	if len(output) > 0 && !strings.Contains(output, "1.0.0") && !strings.Contains(output, "version for configsync") {
 		t.Errorf("Expected version output to contain version info, but got: %s", output[:min(200, len(output))])
@@ -406,12 +406,12 @@ func TestCommandDescriptions(t *testing.T) {
 	for _, cmd := range commands {
 		t.Run(cmd.Name()+"_description", func(t *testing.T) {
 			if len(cmd.Short) < 10 {
-				t.Errorf("Command %s should have a meaningful short description, got: %s", 
+				t.Errorf("Command %s should have a meaningful short description, got: %s",
 					cmd.Name(), cmd.Short)
 			}
-			
+
 			if len(cmd.Long) < 20 {
-				t.Errorf("Command %s should have a meaningful long description, got: %s", 
+				t.Errorf("Command %s should have a meaningful long description, got: %s",
 					cmd.Name(), cmd.Long)
 			}
 		})
@@ -422,19 +422,19 @@ func TestCommandDescriptions(t *testing.T) {
 func TestCobraInit(t *testing.T) {
 	// Test that cobra.OnInitialize is set up correctly
 	// We can't easily test the actual function, but we can verify structure
-	
+
 	// Test that root command has the init function
 	if rootCmd.PersistentPreRun == nil && rootCmd.PersistentPreRunE == nil {
 		// This is OK - initialization happens via cobra.OnInitialize
 		t.Log("Root command uses cobra.OnInitialize for setup")
 	}
-	
+
 	// Test that global variables are accessible
-	if &homeDir == nil {
-		t.Error("homeDir variable should be accessible")
+	if homeDir == "" {
+		t.Error("homeDir variable should be accessible and not empty")
 	}
-	
-	if &configDir == nil {
-		t.Error("configDir variable should be accessible")
+
+	if configDir == "" {
+		t.Error("configDir variable should be accessible and not empty")
 	}
 }

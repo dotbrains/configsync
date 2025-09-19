@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/spf13/cobra"
 	"github.com/dotbrains/configsync/internal/config"
 	"github.com/dotbrains/configsync/pkg/apps"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -101,7 +101,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 			fmt.Printf("  - %s\n", name)
 		}
 		fmt.Println("\nTip: Use 'configsync add --list-supported' to see supported applications")
-		
+
 		if len(successful) == 0 {
 			return fmt.Errorf("failed to add any applications")
 		}
@@ -117,7 +117,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 func showSupportedApps() error {
 	detector := apps.NewAppDetector(homeDir)
 	supportedApps := detector.GetSupportedApps()
-	
+
 	if len(supportedApps) == 0 {
 		fmt.Println("No supported applications found")
 		return nil
@@ -128,7 +128,7 @@ func showSupportedApps() error {
 
 	fmt.Println("Supported applications:")
 	fmt.Println("======================")
-	
+
 	for _, app := range supportedApps {
 		fmt.Printf("  %s\n", app)
 	}

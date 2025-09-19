@@ -3,16 +3,16 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/dotbrains/configsync/internal/config"
 	"github.com/dotbrains/configsync/internal/symlink"
+	"github.com/spf13/cobra"
 )
 
 // syncCmd represents the sync command
 var syncCmd = &cobra.Command{
 	Use:   "sync [app1] [app2] ...",
 	Short: "Sync configurations by creating symlinks",
-	Long: `Sync application configurations by creating symlinks from their 
+	Long: `Sync application configurations by creating symlinks from their
 original locations to the central store.
 
 If no app names are provided, all managed applications will be synced.
@@ -126,7 +126,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 		for _, name := range failed {
 			fmt.Printf("  - %s\n", name)
 		}
-		
+
 		if len(successful) == 0 {
 			return fmt.Errorf("failed to sync any applications")
 		}

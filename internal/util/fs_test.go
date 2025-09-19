@@ -10,13 +10,15 @@ func TestPathExists(t *testing.T) {
 	// Create a temporary directory and file for testing
 	tempDir := t.TempDir()
 	tempFile := filepath.Join(tempDir, "testfile.txt")
-	
+
 	// Create the test file
 	file, err := os.Create(tempFile)
 	if err != nil {
 		t.Fatalf("Failed to create test file: %v", err)
 	}
-	file.Close()
+	if err := file.Close(); err != nil {
+		t.Errorf("Failed to close file: %v", err)
+	}
 
 	tests := []struct {
 		name     string
@@ -67,34 +69,36 @@ func TestPathExists(t *testing.T) {
 
 func TestPathExistsSymlink(t *testing.T) {
 	tempDir := t.TempDir()
-	
+
 	// Create a target file
 	targetFile := filepath.Join(tempDir, "target.txt")
 	file, err := os.Create(targetFile)
 	if err != nil {
 		t.Fatalf("Failed to create target file: %v", err)
 	}
-	file.Close()
-	
+	if err := file.Close(); err != nil {
+		t.Errorf("Failed to close file: %v", err)
+	}
+
 	// Create a symlink to the target file
 	symlinkFile := filepath.Join(tempDir, "symlink.txt")
 	err = os.Symlink(targetFile, symlinkFile)
 	if err != nil {
 		t.Skipf("Skipping symlink test: %v", err) // Skip if symlinks not supported
 	}
-	
+
 	// Test that PathExists works with symlinks
 	if !PathExists(symlinkFile) {
 		t.Error("Expected PathExists to return true for valid symlink")
 	}
-	
+
 	// Create a broken symlink
 	brokenSymlink := filepath.Join(tempDir, "broken.txt")
 	err = os.Symlink(filepath.Join(tempDir, "nonexistent.txt"), brokenSymlink)
 	if err != nil {
 		t.Skipf("Skipping broken symlink test: %v", err)
 	}
-	
+
 	// Test that PathExists returns false for broken symlinks
 	if PathExists(brokenSymlink) {
 		t.Error("Expected PathExists to return false for broken symlink")
@@ -105,13 +109,15 @@ func TestPathExistsSymlink(t *testing.T) {
 func BenchmarkPathExists(b *testing.B) {
 	tempDir := b.TempDir()
 	tempFile := filepath.Join(tempDir, "benchmark.txt")
-	
+
 	file, err := os.Create(tempFile)
 	if err != nil {
 		b.Fatalf("Failed to create benchmark file: %v", err)
 	}
-	file.Close()
-	
+	if err := file.Close(); err != nil {
+		b.Fatalf("Failed to close benchmark file: %v", err)
+	}
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		PathExists(tempFile)
@@ -121,7 +127,7 @@ func BenchmarkPathExists(b *testing.B) {
 func BenchmarkPathExistsNonExistent(b *testing.B) {
 	tempDir := b.TempDir()
 	nonExistentFile := filepath.Join(tempDir, "nonexistent.txt")
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		PathExists(nonExistentFile)

@@ -307,7 +307,7 @@ func TestRemoveDuplicateConfigs(t *testing.T) {
 func TestDetectKnownApp(t *testing.T) {
 	// Create a temporary directory structure for testing
 	tempDir := t.TempDir()
-	
+
 	// Create test preference files
 	prefsDir := filepath.Join(tempDir, "Library", "Preferences")
 	err := os.MkdirAll(prefsDir, 0755)
@@ -330,7 +330,7 @@ func TestDetectKnownApp(t *testing.T) {
 	}
 
 	detector := NewAppDetector(tempDir)
-	
+
 	// Test detecting VS Code
 	appConfig := detector.detectKnownApp("vscode")
 	if appConfig == nil {
@@ -365,7 +365,7 @@ func TestDetectKnownApp(t *testing.T) {
 func TestSmartDetectApp(t *testing.T) {
 	// Create a temporary directory structure for testing
 	tempDir := t.TempDir()
-	
+
 	// Create test preference files
 	prefsDir := filepath.Join(tempDir, "Library", "Preferences")
 	err := os.MkdirAll(prefsDir, 0755)
@@ -402,7 +402,7 @@ func TestSmartDetectApp(t *testing.T) {
 	}
 
 	appConfig := detector.smartDetectApp(testApp)
-	
+
 	if appConfig == nil {
 		t.Fatal("Expected to detect app configuration")
 	}
@@ -442,9 +442,9 @@ func TestSmartDetectApp(t *testing.T) {
 
 func TestGetSupportedApps(t *testing.T) {
 	detector := NewAppDetector("/test/home")
-	
+
 	supportedApps := detector.GetSupportedApps()
-	
+
 	if len(supportedApps) == 0 {
 		t.Error("Expected some supported apps")
 	}
@@ -467,7 +467,7 @@ func TestGetSupportedApps(t *testing.T) {
 
 func TestExpandPath(t *testing.T) {
 	detector := NewAppDetector("/test/home")
-	
+
 	tests := []struct {
 		name     string
 		path     string
@@ -502,37 +502,37 @@ func TestExpandPath(t *testing.T) {
 
 func TestCaching(t *testing.T) {
 	detector := NewAppDetector("/test/home")
-	
+
 	// Set a short cache duration for testing
 	detector.cacheDuration = 100 * time.Millisecond
-	
+
 	// Mock some installed apps
 	testApps := []InstalledApp{
 		{Name: "testapp1", BundleID: "com.test.1"},
 		{Name: "testapp2", BundleID: "com.test.2"},
 	}
-	
+
 	// Manually set cache
 	detector.installedApps = testApps
 	detector.lastScanTime = time.Now()
-	
+
 	// Should return cached results
 	result, _ := detector.ScanInstalledApps()
 	if !reflect.DeepEqual(result, testApps) {
 		t.Error("Expected cached results to be returned")
 	}
-	
+
 	// Wait for cache to expire
 	time.Sleep(150 * time.Millisecond)
-	
+
 	// Now it should try to scan again (will fail but cache should be expired)
 	detector.lastScanTime = time.Now().Add(-10 * time.Minute) // Force cache expiry
-	detector.installedApps = []InstalledApp{} // Clear cache
-	
+	detector.installedApps = []InstalledApp{}                 // Clear cache
+
 	// This will call the actual scan methods which may fail in test environment,
 	// but we're testing the cache logic
-	result, _ = detector.ScanInstalledApps()
-	
+	_, _ = detector.ScanInstalledApps()
+
 	// The cache should be updated (even if empty due to scan failures)
 	if time.Since(detector.lastScanTime) > time.Second {
 		t.Error("Expected cache timestamp to be updated")
@@ -547,7 +547,7 @@ func BenchmarkGenerateAppKey(b *testing.B) {
 		BundleID: "com.test.app",
 		Path:     "/Applications/Test.app",
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		detector.generateAppKey(app)
@@ -556,7 +556,7 @@ func BenchmarkGenerateAppKey(b *testing.B) {
 
 func BenchmarkRemoveDuplicateApps(b *testing.B) {
 	detector := NewAppDetector("/test/home")
-	
+
 	// Create a list of apps with some duplicates
 	apps := make([]InstalledApp, 1000)
 	for i := 0; i < 1000; i++ {
@@ -566,7 +566,7 @@ func BenchmarkRemoveDuplicateApps(b *testing.B) {
 			Path:     "/Applications/Test" + string(rune(i)) + ".app",
 		}
 	}
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		detector.removeDuplicateApps(apps)

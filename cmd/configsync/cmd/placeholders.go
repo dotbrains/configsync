@@ -5,11 +5,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
 	"github.com/dotbrains/configsync/internal/backup"
 	"github.com/dotbrains/configsync/internal/config"
 	"github.com/dotbrains/configsync/internal/deploy"
 	"github.com/dotbrains/configsync/internal/util"
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -180,7 +180,7 @@ func validateBackups(backupManager *backup.Manager, args []string, cfg *config.C
 		}
 	}
 
-	fmt.Printf("\nBackup validation complete: %d valid, %d invalid (total: %d)\n", 
+	fmt.Printf("\nBackup validation complete: %d valid, %d invalid (total: %d)\n",
 		validBackups, invalidBackups, totalBackups)
 
 	return nil
@@ -394,7 +394,7 @@ Examples:
 
 func runImport(cmd *cobra.Command, args []string) error {
 	bundlePath := args[0]
-	
+
 	// Create configuration manager
 	manager := config.NewManager(homeDir)
 
@@ -491,13 +491,12 @@ func runDeploy(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-
 func init() {
 	// Backup command flags
 	backupCmd.Flags().IntVar(&backupKeepDays, "keep-days", 30, "cleanup backups older than N days")
 	backupCmd.Flags().BoolVar(&backupValidate, "validate", false, "validate existing backups")
 
-	// Restore command flags  
+	// Restore command flags
 	restoreCmd.Flags().BoolVar(&restoreAll, "all", false, "restore all backed up applications")
 
 	// Export command flags

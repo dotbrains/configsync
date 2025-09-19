@@ -1,3 +1,4 @@
+// Package util provides utility functions for file system operations.
 package util
 
 import (

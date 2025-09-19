@@ -9,22 +9,22 @@ import (
 )
 
 var (
-	homeDir    string
-	configDir  string
-	verbose    bool
-	dryRun     bool
+	homeDir   string
+	configDir string
+	verbose   bool
+	dryRun    bool
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "configsync",
 	Short: "Manage macOS application configurations with centralized storage and syncing",
-	Long: `ConfigSync is a command-line tool for managing macOS application settings 
+	Long: `ConfigSync is a command-line tool for managing macOS application settings
 and configurations with centralized storage and syncing across multiple Mac systems.
 
 It helps you:
 - Store app configurations in a central location
-- Use symlinks to sync settings between the central store and app locations  
+- Use symlinks to sync settings between the central store and app locations
 - Deploy configurations to new Mac systems easily
 - Create backups before making changes
 - Support version control integration`,
@@ -43,7 +43,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&homeDir, "home", "", "home directory (default is $HOME)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVar(&dryRun, "dry-run", false, "show what would be done without actually doing it")
-	
+
 	// Add subcommands
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(addCmd)
@@ -69,7 +69,7 @@ func initConfig() {
 		}
 		homeDir = home
 	}
-	
+
 	// Set config directory
 	configDir = filepath.Join(homeDir, ".configsync")
 }

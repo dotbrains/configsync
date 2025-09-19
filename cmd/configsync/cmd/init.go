@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
 	"github.com/dotbrains/configsync/internal/config"
+	"github.com/spf13/cobra"
 )
 
 // initCmd represents the init command
@@ -16,7 +16,7 @@ and configuration files in ~/.configsync.
 
 This command creates:
 - Configuration directory (~/.configsync)
-- Central storage directory (store/)  
+- Central storage directory (store/)
 - Backup directory (backups/)
 - Log directory (logs/)
 - Initial configuration file (config.yaml)`,

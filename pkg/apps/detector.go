@@ -1,3 +1,4 @@
+// Package apps provides application detection and configuration functionality.
 package apps
 
 import (
@@ -15,10 +16,10 @@ import (
 
 // AppDetector handles detection and configuration of macOS applications
 type AppDetector struct {
-	homeDir           string
-	installedApps     []InstalledApp
-	lastScanTime      time.Time
-	cacheDuration     time.Duration
+	homeDir       string
+	installedApps []InstalledApp
+	lastScanTime  time.Time
+	cacheDuration time.Duration
 }
 
 // NewAppDetector creates a new application detector
@@ -34,30 +35,30 @@ func NewAppDetector(homeDir string) *AppDetector {
 func (d *AppDetector) DetectApp(appName string) (*config.AppConfig, error) {
 	// Normalize app name
 	normalizedName := strings.ToLower(strings.ReplaceAll(appName, " ", ""))
-	
+
 	// Try to find app configuration using various strategies
 	if appConfig := d.detectKnownApp(normalizedName); appConfig != nil {
 		return appConfig, nil
 	}
-	
+
 	if appConfig := d.detectByBundleID(appName); appConfig != nil {
 		return appConfig, nil
 	}
-	
+
 	if appConfig := d.detectByPreferences(appName); appConfig != nil {
 		return appConfig, nil
 	}
-	
+
 	return nil, fmt.Errorf("could not detect configuration for app: %s", appName)
 }
 
 // InstalledApp represents an application installed on the system
 type InstalledApp struct {
-	Name         string `json:"name"`
-	BundleID     string `json:"bundle_id"`
-	Path         string `json:"path"`
-	Version      string `json:"version"`
-	DisplayName  string `json:"display_name"`
+	Name        string `json:"name"`
+	BundleID    string `json:"bundle_id"`
+	Path        string `json:"path"`
+	Version     string `json:"version"`
+	DisplayName string `json:"display_name"`
 }
 
 // ScanInstalledApps scans the system for installed applications using system_profiler and mdfind
@@ -69,7 +70,7 @@ func (d *AppDetector) ScanInstalledApps() ([]InstalledApp, error) {
 
 	var allApps []InstalledApp
 	var scanCounts []int
-	
+
 	// Method 1: Use system_profiler to get installed applications
 	if apps, err := d.scanWithSystemProfiler(); err == nil {
 		allApps = append(allApps, apps...)
@@ -77,7 +78,7 @@ func (d *AppDetector) ScanInstalledApps() ([]InstalledApp, error) {
 	} else {
 		scanCounts = append(scanCounts, 0)
 	}
-	
+
 	// Method 2: Use mdfind to find .app bundles
 	if apps, err := d.scanWithMdfind(); err == nil {
 		allApps = append(allApps, apps...)
@@ -85,32 +86,29 @@ func (d *AppDetector) ScanInstalledApps() ([]InstalledApp, error) {
 	} else {
 		scanCounts = append(scanCounts, 0)
 	}
-	
+
 	// Method 3: Scan common application directories
-	if apps, err := d.scanCommonDirectories(); err == nil {
-		allApps = append(allApps, apps...)
-		scanCounts = append(scanCounts, len(apps))
-	} else {
-		scanCounts = append(scanCounts, 0)
-	}
-	
+	apps := d.scanCommonDirectories()
+	allApps = append(allApps, apps...)
+	scanCounts = append(scanCounts, len(apps))
+
 	beforeDeduplication := len(allApps)
-	
+
 	// Remove duplicates based on bundle ID
 	uniqueApps := d.removeDuplicateApps(allApps)
-	
+
 	afterDeduplication := len(uniqueApps)
 	duplicatesRemoved := beforeDeduplication - afterDeduplication
-	
+
 	// Debug info: only visible in verbose mode (would need to be passed down)
 	// For now, this is just internal tracking
 	_ = scanCounts
 	_ = duplicatesRemoved
-	
+
 	// Cache the results
 	d.installedApps = uniqueApps
 	d.lastScanTime = time.Now()
-	
+
 	return uniqueApps, nil
 }
 
@@ -121,7 +119,7 @@ func (d *AppDetector) scanWithSystemProfiler() ([]InstalledApp, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to run system_profiler: %v", err)
 	}
-	
+
 	var result struct {
 		SPApplicationsDataType []struct {
 			Name    string `json:"_name"`
@@ -129,11 +127,11 @@ func (d *AppDetector) scanWithSystemProfiler() ([]InstalledApp, error) {
 			Version string `json:"version"`
 		} `json:"SPApplicationsDataType"`
 	}
-	
+
 	if err := json.Unmarshal(output, &result); err != nil {
 		return nil, fmt.Errorf("failed to parse system_profiler output: %v", err)
 	}
-	
+
 	var apps []InstalledApp
 	for _, app := range result.SPApplicationsDataType {
 		if app.Name != "" {
@@ -147,7 +145,7 @@ func (d *AppDetector) scanWithSystemProfiler() ([]InstalledApp, error) {
 			apps = append(apps, installedApp)
 		}
 	}
-	
+
 	return apps, nil
 }
 
@@ -158,72 +156,72 @@ func (d *AppDetector) scanWithMdfind() ([]InstalledApp, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to run mdfind: %v", err)
 	}
-	
+
 	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
 	var apps []InstalledApp
-	
+
 	for _, line := range lines {
 		if line == "" || !strings.HasSuffix(line, ".app") {
 			continue
 		}
-		
+
 		appName := filepath.Base(line)
 		appName = strings.TrimSuffix(appName, ".app")
-		
+
 		installedApp := InstalledApp{
 			Name:        strings.ToLower(strings.ReplaceAll(appName, " ", "")),
 			DisplayName: appName,
 			Path:        line,
 			BundleID:    d.extractBundleID(line),
 		}
-		
+
 		apps = append(apps, installedApp)
 	}
-	
+
 	return apps, nil
 }
 
 // scanCommonDirectories scans common application installation directories
-func (d *AppDetector) scanCommonDirectories() ([]InstalledApp, error) {
+func (d *AppDetector) scanCommonDirectories() []InstalledApp {
 	commonDirs := []string{
 		"/Applications",
 		filepath.Join(d.homeDir, "Applications"),
 		"/System/Applications",
 		"/System/Library/CoreServices",
 	}
-	
+
 	var apps []InstalledApp
-	
+
 	for _, dir := range commonDirs {
 		if !util.PathExists(dir) {
 			continue
 		}
-		
+
 		entries, err := os.ReadDir(dir)
 		if err != nil {
 			continue
 		}
-		
+
 		for _, entry := range entries {
 			if !entry.IsDir() || !strings.HasSuffix(entry.Name(), ".app") {
 				continue
 			}
-			
+
 			appPath := filepath.Join(dir, entry.Name())
 			appName := strings.TrimSuffix(entry.Name(), ".app")
-			
+
 			installedApp := InstalledApp{
 				Name:        strings.ToLower(strings.ReplaceAll(appName, " ", "")),
 				DisplayName: appName,
 				Path:        appPath,
 				BundleID:    d.extractBundleID(appPath),
 			}
-			
+
 			apps = append(apps, installedApp)
 		}
 	}
-	
-	return apps, nil
+
+	return apps
 }
 
 // extractBundleID extracts the bundle ID from an application path
@@ -231,19 +229,19 @@ func (d *AppDetector) extractBundleID(appPath string) string {
 	if appPath == "" {
 		return ""
 	}
-	
+
 	infoPath := filepath.Join(appPath, "Contents", "Info.plist")
 	if !util.PathExists(infoPath) {
 		return ""
 	}
-	
+
 	// Use plutil to extract bundle ID from Info.plist
 	cmd := exec.Command("plutil", "-extract", "CFBundleIdentifier", "raw", infoPath)
 	output, err := cmd.Output()
 	if err != nil {
 		return ""
 	}
-	
+
 	return strings.TrimSpace(string(output))
 }
 
@@ -251,11 +249,11 @@ func (d *AppDetector) extractBundleID(appPath string) string {
 func (d *AppDetector) removeDuplicateApps(apps []InstalledApp) []InstalledApp {
 	seen := make(map[string]bool)
 	var unique []InstalledApp
-	
+
 	for _, app := range apps {
 		// Create a comprehensive key for deduplication
 		key := d.generateAppKey(app)
-		
+
 		if !seen[key] {
 			seen[key] = true
 			unique = append(unique, app)
@@ -271,7 +269,7 @@ func (d *AppDetector) removeDuplicateApps(apps []InstalledApp) []InstalledApp {
 			}
 		}
 	}
-	
+
 	return unique
 }
 
@@ -281,17 +279,17 @@ func (d *AppDetector) generateAppKey(app InstalledApp) string {
 	// 1. Bundle ID (most reliable)
 	// 2. App path (for apps without bundle ID)
 	// 3. Normalized name (fallback)
-	
+
 	if app.BundleID != "" {
 		return "bundle:" + app.BundleID
 	}
-	
+
 	if app.Path != "" {
 		// Use clean path to normalize /Applications vs /Applications/ differences
 		cleanPath := filepath.Clean(app.Path)
 		return "path:" + cleanPath
 	}
-	
+
 	return "name:" + app.Name
 }
 
@@ -304,7 +302,7 @@ func (d *AppDetector) shouldReplaceApp(existing, new InstalledApp) bool {
 	if existing.BundleID != "" && new.BundleID == "" {
 		return false
 	}
-	
+
 	// Prefer apps with version information
 	if existing.Version == "" && new.Version != "" {
 		return true
@@ -312,12 +310,12 @@ func (d *AppDetector) shouldReplaceApp(existing, new InstalledApp) bool {
 	if existing.Version != "" && new.Version == "" {
 		return false
 	}
-	
+
 	// Prefer apps in /Applications over other locations
 	if !strings.HasPrefix(existing.Path, "/Applications/") && strings.HasPrefix(new.Path, "/Applications/") {
 		return true
 	}
-	
+
 	return false
 }
 
@@ -327,9 +325,9 @@ func (d *AppDetector) AutoDetectApps() ([]*config.AppConfig, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to scan installed apps: %v", err)
 	}
-	
+
 	var detectedConfigs []*config.AppConfig
-	
+
 	for _, app := range installedApps {
 		// First try to detect using known apps
 		if appConfig := d.detectKnownApp(app.Name); appConfig != nil {
@@ -340,16 +338,16 @@ func (d *AppDetector) AutoDetectApps() ([]*config.AppConfig, error) {
 			detectedConfigs = append(detectedConfigs, appConfig)
 			continue
 		}
-		
+
 		// Try smart detection using bundle ID and common patterns
 		if appConfig := d.smartDetectApp(app); appConfig != nil {
 			detectedConfigs = append(detectedConfigs, appConfig)
 		}
 	}
-	
+
 	// Remove duplicate configurations
 	deduplicatedConfigs := d.removeDuplicateConfigs(detectedConfigs)
-	
+
 	return deduplicatedConfigs, nil
 }
 
@@ -357,10 +355,10 @@ func (d *AppDetector) AutoDetectApps() ([]*config.AppConfig, error) {
 func (d *AppDetector) removeDuplicateConfigs(configs []*config.AppConfig) []*config.AppConfig {
 	seen := make(map[string]bool)
 	var unique []*config.AppConfig
-	
+
 	for _, cfg := range configs {
 		key := d.generateConfigKey(cfg)
-		
+
 		if !seen[key] {
 			seen[key] = true
 			unique = append(unique, cfg)
@@ -379,7 +377,7 @@ func (d *AppDetector) removeDuplicateConfigs(configs []*config.AppConfig) []*con
 			}
 		}
 	}
-	
+
 	return unique
 }
 
@@ -388,11 +386,11 @@ func (d *AppDetector) generateConfigKey(cfg *config.AppConfig) string {
 	// Priority order for key generation:
 	// 1. Bundle ID (most reliable)
 	// 2. Normalized name (fallback)
-	
+
 	if cfg.BundleID != "" {
 		return "bundle:" + cfg.BundleID
 	}
-	
+
 	return "name:" + cfg.Name
 }
 
@@ -400,9 +398,9 @@ func (d *AppDetector) generateConfigKey(cfg *config.AppConfig) string {
 func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 	appConfig := config.NewAppConfig(app.Name, app.DisplayName)
 	appConfig.BundleID = app.BundleID
-	
+
 	var foundPaths []ConfigPath
-	
+
 	// Pattern 1: Check for preferences in ~/Library/Preferences/
 	if app.BundleID != "" {
 		prefsPath := filepath.Join(d.homeDir, "Library", "Preferences", app.BundleID+".plist")
@@ -416,13 +414,13 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 			})
 		}
 	}
-	
+
 	// Pattern 2: Check for application support directory
 	appSupportPaths := []string{
 		filepath.Join(d.homeDir, "Library", "Application Support", app.DisplayName),
 		filepath.Join(d.homeDir, "Library", "Application Support", app.Name),
 	}
-	
+
 	for _, appSupportPath := range appSupportPaths {
 		if util.PathExists(appSupportPath) {
 			relPath, _ := filepath.Rel(d.homeDir, appSupportPath)
@@ -435,14 +433,14 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 			break
 		}
 	}
-	
+
 	// Pattern 3: Check for containers (sandboxed apps)
 	if app.BundleID != "" {
 		containerPaths := []string{
 			filepath.Join(d.homeDir, "Library", "Containers", app.BundleID),
 			filepath.Join(d.homeDir, "Library", "Group Containers", app.BundleID),
 		}
-		
+
 		for _, containerPath := range containerPaths {
 			if util.PathExists(containerPath) {
 				relPath, _ := filepath.Rel(d.homeDir, containerPath)
@@ -455,7 +453,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 			}
 		}
 	}
-	
+
 	// Pattern 4: Check for dotfiles in home directory (for CLI tools)
 	if !strings.Contains(app.Path, "Applications") {
 		potentialDotfiles := []string{
@@ -464,7 +462,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 			filepath.Join(d.homeDir, "."+app.Name+".conf"),
 			filepath.Join(d.homeDir, ".config", app.Name),
 		}
-		
+
 		for _, dotfile := range potentialDotfiles {
 			if util.PathExists(dotfile) {
 				relPath, _ := filepath.Rel(d.homeDir, dotfile)
@@ -477,17 +475,17 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 			}
 		}
 	}
-	
+
 	// Convert ConfigPath to the expected PathInfo format
 	for _, cp := range foundPaths {
 		appConfig.AddPath(cp.Source, cp.Destination, cp.Type, cp.Required)
 	}
-	
+
 	// Only return if we found at least one configuration path
 	if len(foundPaths) > 0 {
 		return appConfig
 	}
-	
+
 	return nil
 }
 
@@ -519,26 +517,26 @@ func (d *AppDetector) detectKnownApp(normalizedName string) *config.AppConfig {
 	if !exists {
 		return nil
 	}
-	
+
 	appConfig := config.NewAppConfig(appInfo.Name, appInfo.DisplayName)
 	appConfig.BundleID = appInfo.BundleID
-	
+
 	// Add paths from the known app configuration
 	for _, pathInfo := range appInfo.Paths {
 		sourcePath := d.expandPath(pathInfo.Source)
 		destPath := pathInfo.Destination
-		
+
 		// Only add path if source exists (unless it's required)
 		if pathInfo.Required || util.PathExists(sourcePath) {
 			appConfig.AddPath(sourcePath, destPath, pathInfo.Type, pathInfo.Required)
 		}
 	}
-	
+
 	// Only return if we found at least one valid path
 	if len(appConfig.Paths) > 0 {
 		return appConfig
 	}
-	
+
 	return nil
 }
 
@@ -547,29 +545,29 @@ func (d *AppDetector) detectByBundleID(appName string) *config.AppConfig {
 	// Common bundle ID patterns
 	patterns := []string{
 		"com.%s.%s",
-		"org.%s.%s", 
+		"org.%s.%s",
 		"com.%s",
 		"org.%s",
 	}
-	
+
 	normalizedName := strings.ToLower(strings.ReplaceAll(appName, " ", ""))
 	prefsDir := filepath.Join(d.homeDir, "Library", "Preferences")
-	
+
 	for _, pattern := range patterns {
 		bundleID := fmt.Sprintf(pattern, normalizedName, normalizedName)
 		plistPath := filepath.Join(prefsDir, bundleID+".plist")
-		
+
 		if util.PathExists(plistPath) {
 			appConfig := config.NewAppConfig(normalizedName, appName)
 			appConfig.BundleID = bundleID
-			
+
 			destPath := filepath.Join("Library", "Preferences", bundleID+".plist")
 			appConfig.AddPath(plistPath, destPath, config.PathTypeFile, false)
-			
+
 			return appConfig
 		}
 	}
-	
+
 	return nil
 }
 
@@ -577,35 +575,35 @@ func (d *AppDetector) detectByBundleID(appName string) *config.AppConfig {
 func (d *AppDetector) detectByPreferences(appName string) *config.AppConfig {
 	normalizedName := strings.ToLower(strings.ReplaceAll(appName, " ", ""))
 	prefsDir := filepath.Join(d.homeDir, "Library", "Preferences")
-	
+
 	entries, err := os.ReadDir(prefsDir)
 	if err != nil {
 		return nil
 	}
-	
+
 	var foundPaths []string
 	for _, entry := range entries {
 		if entry.IsDir() {
 			continue
 		}
-		
+
 		fileName := strings.ToLower(entry.Name())
 		if strings.Contains(fileName, normalizedName) && strings.HasSuffix(fileName, ".plist") {
 			foundPaths = append(foundPaths, filepath.Join(prefsDir, entry.Name()))
 		}
 	}
-	
+
 	if len(foundPaths) > 0 {
 		appConfig := config.NewAppConfig(normalizedName, appName)
-		
+
 		for _, path := range foundPaths {
 			relPath, _ := filepath.Rel(d.homeDir, path)
 			appConfig.AddPath(path, relPath, config.PathTypeFile, false)
 		}
-		
+
 		return appConfig
 	}
-	
+
 	return nil
 }
 
@@ -616,7 +614,6 @@ func (d *AppDetector) expandPath(path string) string {
 	}
 	return path
 }
-
 
 // AppInfo represents information about a known application
 type AppInfo struct {
