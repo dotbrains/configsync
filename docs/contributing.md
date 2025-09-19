@@ -423,27 +423,17 @@ See [RELEASE.md](https://github.com/dotbrains/configsync/blob/main/RELEASE.md) f
 
 Need help contributing? Here are ways to get support:
 
-<div class="features-grid" style="margin: 2rem 0;">
-    <div class="feature-card">
-        <h4><i class="fas fa-comments" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Discussions</h4>
-        <p><a href="https://github.com/dotbrains/configsync/discussions" target="_blank">GitHub Discussions</a> for questions and ideas</p>
-    </div>
+### 💬 Discussions
+[GitHub Discussions](https://github.com/dotbrains/configsync/discussions) for questions and ideas
 
-    <div class="feature-card">
-        <h4><i class="fas fa-bug" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Issues</h4>
-        <p><a href="https://github.com/dotbrains/configsync/issues" target="_blank">GitHub Issues</a> for bugs and feature requests</p>
-    </div>
+### 🐛 Issues
+[GitHub Issues](https://github.com/dotbrains/configsync/issues) for bugs and feature requests
 
-    <div class="feature-card">
-        <h4><i class="fas fa-code-branch" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Pull Requests</h4>
-        <p><a href="https://github.com/dotbrains/configsync/pulls" target="_blank">GitHub PRs</a> for code contributions</p>
-    </div>
+### 🔀 Pull Requests
+[GitHub PRs](https://github.com/dotbrains/configsync/pulls) for code contributions
 
-    <div class="feature-card">
-        <h4><i class="fas fa-question-circle" style="margin-right: 0.5rem; color: var(--primary-color);"></i>Questions</h4>
-        <p>Open an issue with "question" label for contribution help</p>
-    </div>
-</div>
+### ❓ Questions
+Open an issue with "question" label for contribution help
 
 ## Recognition
 
