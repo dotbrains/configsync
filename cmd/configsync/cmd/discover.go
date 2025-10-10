@@ -197,7 +197,7 @@ func autoAddDiscoveredApps(detectedConfigs []*config.AppConfig) error {
 	}
 
 	// Load existing configuration
-	configManager := config.NewManager(configDir)
+	configManager := config.NewManager(homeDir)
 	cfg, err := configManager.Load()
 	if err != nil {
 		return fmt.Errorf("failed to load configuration: %v", err)
