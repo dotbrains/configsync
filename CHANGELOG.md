@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2025-10-10
+
+### Fixed
+- **Configuration Path Bug**: Fixed discover command incorrectly looking for config file in nested `.configsync/.configsync/config.yaml` instead of `.configsync/config.yaml`
+- **Command Functionality**: Resolved issue preventing `configsync discover --auto-add` from working properly
+
 ## [1.0.3] - 2024-09-19
 
 ### Added
