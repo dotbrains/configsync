@@ -31,8 +31,7 @@ linters-settings:
       - fieldalignment
   misspell:
     locale: US
-  revive:
-    # Using default settings
+  # revive: using default settings
 
 issues:
   max-issues-per-linter: 50
