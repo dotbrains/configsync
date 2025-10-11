@@ -75,11 +75,14 @@ git commit -m "Update configsync to ${VERSION}"
 echo -e "${YELLOW}🚀 Pushing to GitHub...${NC}"
 git push origin main
 
-# Clean up
-rm -rf "${TEMP_DIR}"
-
 echo -e "${GREEN}✅ Successfully updated Homebrew formula for ConfigSync ${VERSION}${NC}"
 echo -e "${GREEN}🎉 Users can now install with: brew upgrade configsync${NC}"
+
+# Change back to original directory before cleanup and testing
+cd "$HOME"
+
+# Clean up
+rm -rf "${TEMP_DIR}"
 
 # Test the formula (optional)
 echo -e "${YELLOW}🧪 Testing the updated formula...${NC}"
