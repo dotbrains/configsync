@@ -32,7 +32,7 @@ linters-settings:
   misspell:
     locale: US
   revive:
-    min-confidence: 0
+    # Using default settings
 
 issues:
   max-issues-per-linter: 50
