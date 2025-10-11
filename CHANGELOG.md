@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.6] - 2025-10-11
+
+### Fixed
+- **Deploy Command Bug**: Fixed deploy command failing with "bundle file not found" error when trying to deploy imported configurations
+- **Bundle Loading**: Fixed deploy command to properly load bundle metadata directly instead of calling ImportBundle with empty path
+
 ## [1.0.5] - 2025-10-11
 
 ### Fixed

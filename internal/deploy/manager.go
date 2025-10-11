@@ -505,6 +505,11 @@ func (m *Manager) saveBundleMetadata(bundle *config.DeploymentBundle, path strin
 	return os.WriteFile(path, data, 0644)
 }
 
+// LoadBundleMetadata loads bundle metadata from a file path
+func (m *Manager) LoadBundleMetadata(path string) (*config.DeploymentBundle, error) {
+	return m.loadBundleMetadata(path)
+}
+
 func (m *Manager) loadBundleMetadata(path string) (*config.DeploymentBundle, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

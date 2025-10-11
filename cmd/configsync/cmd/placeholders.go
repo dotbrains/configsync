@@ -418,9 +418,11 @@ func runDeploy(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("invalid import directory. Run 'configsync import <bundle>' first")
 	}
 
-	// Load bundle
+	// Load bundle metadata directly from imported bundle
 	deployManager := deploy.NewManager(homeDir, cfg.StorePath, cfg.BackupPath, verbose)
-	bundle, err := deployManager.ImportBundle("", importDir) // Empty bundle path since already extracted
+
+	// Load the bundle metadata from the already imported bundle
+	bundle, err := deployManager.LoadBundleMetadata(bundleFile)
 	if err != nil {
 		return fmt.Errorf("failed to load imported bundle: %w", err)
 	}
