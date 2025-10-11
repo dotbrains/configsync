@@ -864,7 +864,7 @@ Before you can build and develop ConfigSync, ensure you have the following tools
   ```bash
   brew install go
   ```
-- **golangci-lint** - Required for `make lint` to work:
+- **golangci-lint v2.x** - Required for `make lint` to work:
   ```bash
   # macOS (Homebrew - recommended)
   brew install golangci-lint

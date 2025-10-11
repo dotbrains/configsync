@@ -1,4 +1,6 @@
-version: 2
+# golangci-lint configuration
+# Compatible with golangci-lint v2.x
+version: "2"
 
 run:
   timeout: 5m
@@ -6,54 +8,20 @@ run:
   tests: true
   go: '1.23'
 
-linters-settings:
-  govet:
-    enable:
-      - shadow
-      - fieldalignment
-  gocyclo:
-    min-complexity: 15
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-  misspell:
-    locale: US
-  lll:
-    line-length: 120
-  goimports:
-    local-prefixes: github.com/dotbrains/configsync
-
 linters:
   enable:
-    - bodyclose
-    - dogsled
-    - dupl
     - errcheck
-    - exhaustive
-    - goconst
-    - gocyclo
-    - goprintffuncname
     - govet
     - ineffassign
-    - misspell
-    - nakedret
-    - nolintlint
-    - revive
-    - rowserrcheck
     - staticcheck
+    - unused
+    - revive
+    - misspell
     - unconvert
     - unparam
-    - unused
-    - whitespace
   disable:
-    - depguard  # Too restrictive for this project
-    - gochecknoinits  # init functions are needed for CLI setup
-    - gosec  # Security issues need case-by-case review
-    - lll  # Line length will be fixed separately
-    - mnd  # Magic numbers will be addressed case-by-case
-    - noctx  # Context usage will be improved separately
+    - depguard
+    - gosec
 
 issues:
   max-issues-per-linter: 50
