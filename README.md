@@ -855,22 +855,172 @@ For information about the release process, see the [release documentation](RELEA
 
 ### Development Setup
 
+#### Prerequisites
+
+Before you can build and develop ConfigSync, ensure you have the following tools installed:
+
+**Required:**
+- **Go 1.21+** - [Download from golang.org](https://golang.org/downloads/) or install via Homebrew:
+  ```bash
+  brew install go
+  ```
+- **golangci-lint** - Required for `make lint` to work:
+  ```bash
+  # macOS (Homebrew - recommended)
+  brew install golangci-lint
+
+  # Or install directly
+  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+  ```
+
+**Recommended:**
+- **goimports** - For import formatting (required for pre-commit hooks):
+  ```bash
+  go install golang.org/x/tools/cmd/goimports@latest
+  ```
+- **pre-commit** - For automated code quality checks (see Code Quality section below):
+  ```bash
+  brew install pre-commit
+  ```
+
+#### Quick Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/dotbrains/configsync.git
 cd configsync
 
-# Install dependencies
+# Install Go dependencies
 go mod download
 
-# Run tests
+# Install required development tools (macOS with Homebrew)
+brew install golangci-lint
+go install golang.org/x/tools/cmd/goimports@latest
+
+# Verify tools are installed correctly
+go version          # Should show Go 1.21+
+golangci-lint --version  # Should show golangci-lint version
+goimports --help    # Should show goimports usage
+
+# Run tests to verify setup
 make test
 
 # Build the project
 make build
 
-# Run linter
+# Run linter (should pass with 0 issues)
 make lint
+
+# Optional: Set up pre-commit hooks for automated quality checks
+brew install pre-commit
+pre-commit install
+```
+
+#### Available Make Commands
+
+```bash
+# Core development commands
+make build         # Build the binary
+make test          # Run all tests
+make lint          # Run linter (requires golangci-lint)
+make fmt           # Format code
+make clean         # Clean build artifacts
+
+# Advanced commands
+make build-all     # Build for multiple platforms
+make test-coverage # Run tests with coverage report
+make install       # Install to /usr/local/bin
+make tidy          # Clean up go.mod
+make help          # Show all available commands
+```
+
+#### Troubleshooting Development Setup
+
+**"golangci-lint: command not found" when running `make lint`:**
+```bash
+# Install golangci-lint
+brew install golangci-lint
+# Or check if it's in your PATH
+echo $PATH
+which golangci-lint
+```
+
+**"goimports: executable file not found" during pre-commit:**
+```bash
+# Install goimports
+go install golang.org/x/tools/cmd/goimports@latest
+# Ensure GOPATH/bin is in your PATH
+echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.zshrc  # or ~/.bashrc
+source ~/.zshrc
+```
+
+**Go modules issues:**
+```bash
+# Clean and re-download dependencies
+go clean -modcache
+go mod download
+go mod tidy
+```
+
+**Build failures:**
+```bash
+# Verify Go version (must be 1.21+)
+go version
+
+# Clean and rebuild
+make clean
+make build
+```
+
+#### Verifying Your Development Setup
+
+After setting up the development environment, run these commands to ensure everything is working:
+
+```bash
+# 1. Verify all required tools are installed
+go version                    # Should show Go 1.21 or higher
+golangci-lint --version      # Should show golangci-lint version
+goimports --help >/dev/null && echo "goimports: ✓" || echo "goimports: ✗"
+
+# 2. Test the build process
+make clean
+make build
+./configsync --version       # Should show the version
+
+# 3. Run the test suite
+make test                    # Should pass all tests
+
+# 4. Run the linter
+make lint                    # Should show "0 issues."
+
+# 5. Test pre-commit hooks (if installed)
+pre-commit run --all-files  # Should pass all checks
+
+# If all commands above succeed, your development setup is ready! ✅
+```
+
+**Expected output for a successful setup:**
+```
+$ go version
+go version go1.21.0 darwin/arm64
+
+$ golangci-lint --version
+golangci-lint has version 1.54.2 built from abc123 on 2023-08-07
+
+$ make build
+go build -o configsync ./cmd/configsync
+
+$ ./configsync --version
+configsync version v1.0.5
+
+$ make test
+?       github.com/dotbrains/configsync/cmd/configsync      [no test files]
+ok      github.com/dotbrains/configsync/internal/backup     0.123s
+...
+
+$ make lint
+golangci-lint run
+0 issues.
 ```
 
 ### Code Quality & Pre-commit Hooks
