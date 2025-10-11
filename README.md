@@ -864,13 +864,13 @@ Before you can build and develop ConfigSync, ensure you have the following tools
   ```bash
   brew install go
   ```
-- **golangci-lint v2.x** - Required for `make lint` to work:
+- **golangci-lint v1.64.8** - Required for `make lint` to work (matches GitHub Actions):
   ```bash
-  # macOS (Homebrew - recommended)
-  brew install golangci-lint
+  # Install specific version v1.64.8 (recommended for consistency with CI)
+  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
 
-  # Or install directly
-  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+  # Or use Homebrew (may install different version)
+  brew install golangci-lint
   ```
 
 **Recommended:**
@@ -893,8 +893,8 @@ cd configsync
 # Install Go dependencies
 go mod download
 
-# Install required development tools (macOS with Homebrew)
-brew install golangci-lint
+# Install required development tools
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
 go install golang.org/x/tools/cmd/goimports@latest
 
 # Verify tools are installed correctly
@@ -938,8 +938,8 @@ make help          # Show all available commands
 
 **"golangci-lint: command not found" when running `make lint`:**
 ```bash
-# Install golangci-lint
-brew install golangci-lint
+# Install the specific version used in CI
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
 # Or check if it's in your PATH
 echo $PATH
 which golangci-lint
@@ -1005,7 +1005,7 @@ $ go version
 go version go1.21.0 darwin/arm64
 
 $ golangci-lint --version
-golangci-lint has version 1.54.2 built from abc123 on 2023-08-07
+golangci-lint has version 1.64.8 built with go1.24.1 from 8b37f141 on 2025-03-17T20:41:53Z
 
 $ make build
 go build -o configsync ./cmd/configsync
@@ -1020,7 +1020,6 @@ ok      github.com/dotbrains/configsync/internal/backup     0.123s
 
 $ make lint
 golangci-lint run
-0 issues.
 ```
 
 ### Code Quality & Pre-commit Hooks

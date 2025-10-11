@@ -1,6 +1,5 @@
 # golangci-lint configuration
-# Compatible with golangci-lint v2.x
-version: "2"
+# Compatible with golangci-lint v1.x (matches GitHub Actions)
 
 run:
   timeout: 5m
@@ -10,18 +9,30 @@ run:
 
 linters:
   enable:
+    - bodyclose
     - errcheck
     - govet
     - ineffassign
-    - staticcheck
-    - unused
-    - revive
     - misspell
+    - revive
+    - staticcheck
     - unconvert
     - unparam
+    - unused
+    - whitespace
   disable:
-    - depguard
-    - gosec
+    - depguard  # Too restrictive for this project
+    - gosec     # Security issues need case-by-case review
+
+linters-settings:
+  govet:
+    enable:
+      - shadow
+      - fieldalignment
+  misspell:
+    locale: US
+  revive:
+    min-confidence: 0
 
 issues:
   max-issues-per-linter: 50
