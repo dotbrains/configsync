@@ -1,3 +1,4 @@
+// Package constants defines test constants used throughout the application.
 package constants
 
 // Test constants

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2025-10-11
+
+### Fixed
+- **Linting Issues**: Fixed missing package comments and meaningless package names identified by golangci-lint
+- **Package Organization**: Renamed `internal/util` package to `internal/fsutil` for better semantic clarity
+- **Code Quality**: Resolved all golangci-lint warnings to ensure clean codebase
+
+### Changed
+- **Package Structure**: Moved file system utilities from `util` to `fsutil` package following Go best practices
+- **Import Paths**: Updated all import references to use the new `fsutil` package path
+
 ## [1.0.4] - 2025-10-10
 
 ### Fixed

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/dotbrains/configsync/internal/config"
-	"github.com/dotbrains/configsync/internal/util"
+	"github.com/dotbrains/configsync/internal/fsutil"
 	"github.com/spf13/cobra"
 )
 
@@ -101,8 +101,8 @@ func runStatus(_ *cobra.Command, _ []string) error {
 
 func getPathStatus(sourcePath, storePath string) string {
 	// Check if source exists
-	sourceExists := util.PathExists(sourcePath)
-	storeExists := util.PathExists(storePath)
+	sourceExists := fsutil.PathExists(sourcePath)
+	storeExists := fsutil.PathExists(storePath)
 
 	if !sourceExists && !storeExists {
 		return "missing"

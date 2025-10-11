@@ -8,7 +8,7 @@ import (
 	"github.com/dotbrains/configsync/internal/backup"
 	"github.com/dotbrains/configsync/internal/config"
 	"github.com/dotbrains/configsync/internal/deploy"
-	"github.com/dotbrains/configsync/internal/util"
+	"github.com/dotbrains/configsync/internal/fsutil"
 	"github.com/spf13/cobra"
 )
 
@@ -408,13 +408,13 @@ func runDeploy(_ *cobra.Command, _ []string) error {
 
 	// Check if import directory exists
 	importDir := filepath.Join(configDir, "import")
-	if !util.PathExists(importDir) {
+	if !fsutil.PathExists(importDir) {
 		return fmt.Errorf("no imported bundle found. Run 'configsync import <bundle>' first")
 	}
 
 	// Load bundle metadata
 	bundleFile := filepath.Join(importDir, "bundle.yaml")
-	if !util.PathExists(bundleFile) {
+	if !fsutil.PathExists(bundleFile) {
 		return fmt.Errorf("invalid import directory. Run 'configsync import <bundle>' first")
 	}
 

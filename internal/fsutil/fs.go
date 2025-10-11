@@ -1,5 +1,5 @@
-// Package util provides utility functions for file system operations.
-package util
+// Package fsutil provides utility functions for file system operations.
+package fsutil
 
 import (
 	"os"

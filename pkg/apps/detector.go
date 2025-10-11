@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/dotbrains/configsync/internal/config"
-	"github.com/dotbrains/configsync/internal/util"
+	"github.com/dotbrains/configsync/internal/fsutil"
 )
 
 // AppDetector handles detection and configuration of macOS applications
@@ -193,7 +193,7 @@ func (d *AppDetector) scanCommonDirectories() []InstalledApp {
 	var apps []InstalledApp
 
 	for _, dir := range commonDirs {
-		if !util.PathExists(dir) {
+		if !fsutil.PathExists(dir) {
 			continue
 		}
 
@@ -231,7 +231,7 @@ func (d *AppDetector) extractBundleID(appPath string) string {
 	}
 
 	infoPath := filepath.Join(appPath, "Contents", "Info.plist")
-	if !util.PathExists(infoPath) {
+	if !fsutil.PathExists(infoPath) {
 		return ""
 	}
 
@@ -404,7 +404,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 	// Pattern 1: Check for preferences in ~/Library/Preferences/
 	if app.BundleID != "" {
 		prefsPath := filepath.Join(d.homeDir, "Library", "Preferences", app.BundleID+".plist")
-		if util.PathExists(prefsPath) {
+		if fsutil.PathExists(prefsPath) {
 			relPath := filepath.Join("Library", "Preferences", app.BundleID+".plist")
 			foundPaths = append(foundPaths, localPath{
 				Source:      prefsPath,
@@ -422,7 +422,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 	}
 
 	for _, appSupportPath := range appSupportPaths {
-		if util.PathExists(appSupportPath) {
+		if fsutil.PathExists(appSupportPath) {
 			relPath, _ := filepath.Rel(d.homeDir, appSupportPath)
 			foundPaths = append(foundPaths, localPath{
 				Source:      appSupportPath,
@@ -442,7 +442,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 		}
 
 		for _, containerPath := range containerPaths {
-			if util.PathExists(containerPath) {
+			if fsutil.PathExists(containerPath) {
 				relPath, _ := filepath.Rel(d.homeDir, containerPath)
 				foundPaths = append(foundPaths, localPath{
 					Source:      containerPath,
@@ -464,7 +464,7 @@ func (d *AppDetector) smartDetectApp(app InstalledApp) *config.AppConfig {
 		}
 
 		for _, dotfile := range potentialDotfiles {
-			if util.PathExists(dotfile) {
+			if fsutil.PathExists(dotfile) {
 				relPath, _ := filepath.Rel(d.homeDir, dotfile)
 				foundPaths = append(foundPaths, localPath{
 					Source:      dotfile,
@@ -527,7 +527,7 @@ func (d *AppDetector) detectKnownApp(normalizedName string) *config.AppConfig {
 		destPath := pathInfo.Destination
 
 		// Only add path if source exists (unless it's required)
-		if pathInfo.Required || util.PathExists(sourcePath) {
+		if pathInfo.Required || fsutil.PathExists(sourcePath) {
 			appConfig.AddPath(sourcePath, destPath, pathInfo.Type, pathInfo.Required)
 		}
 	}
@@ -557,7 +557,7 @@ func (d *AppDetector) detectByBundleID(appName string) *config.AppConfig {
 		bundleID := fmt.Sprintf(pattern, normalizedName, normalizedName)
 		plistPath := filepath.Join(prefsDir, bundleID+".plist")
 
-		if util.PathExists(plistPath) {
+		if fsutil.PathExists(plistPath) {
 			appConfig := config.NewAppConfig(normalizedName, appName)
 			appConfig.BundleID = bundleID
 
