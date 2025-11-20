@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="white"/>
+  <g transform="translate(32, 32)">
+    <!-- Refresh/Sync icon in blue -->
+    <path d="M 15 0 A 15 15 0 1 0 15 0.1"
+          fill="none"
+          stroke="#2563eb"
+          stroke-width="4"
+          stroke-linecap="round"/>
+    <path d="M 15 -4 L 15 4 L 21 0 Z"
+          fill="#2563eb"/>
+
+    <path d="M -15 0 A 15 15 0 1 1 -15 -0.1"
+          fill="none"
+          stroke="#2563eb"
+          stroke-width="4"
+          stroke-linecap="round"/>
+    <path d="M -15 4 L -15 -4 L -21 0 Z"
+          fill="#2563eb"/>
+  </g>
+</svg>
