@@ -39,12 +39,8 @@ navigation:
     url: /installation/
   - title: Getting Started
     url: /getting-started/
-  - title: Documentation
-    url: /docs/
   - title: CLI Reference
     url: /cli-reference/
-  - title: Contributing
-    url: /contributing/
 
 # Social links
 github_username: dotbrains
